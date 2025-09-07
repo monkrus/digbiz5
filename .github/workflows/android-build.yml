@@ -1,10 +1,9 @@
 name: Android Build
 
 on:
-  push:
-    branches: [master, main]
-  pull_request:
-    branches: [master, main]
+  workflow_dispatch: # Manual trigger only
+  schedule:
+    - cron: '0 2 * * 0' # Weekly on Sunday at 2 AM UTC
 
 jobs:
   android-build:
