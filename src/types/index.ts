@@ -8,7 +8,7 @@ export type { RootStackParamList, TabParamList } from '../navigation/types';
 export type { LoginFormData, RegisterFormData } from '../utils/formValidation';
 
 // Config types
-export type { Theme, EnvConfig } from '../config';
+export type { Theme, EnvConfig } from '../utils/config';
 
 // Common utility types
 export interface ApiResponse<T = any> {
