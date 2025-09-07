@@ -8,6 +8,15 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
+    "test:setup": "jest _tests_/setup",
+    "test:integration": "jest _tests_/integration",
+    "test:all": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run typecheck && npm run lint && npm run test:setup",
+    "build:android": "cd android && ./gradlew assembleDebug",
+    "build:ios": "cd ios && xcodebuild -workspace digbiz5.xcworkspace -scheme digbiz5 -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 15' build",
     "prepare": "husky"
   },
   "dependencies": {
@@ -43,6 +52,7 @@
     "@react-native/metro-config": "0.81.1",
     "@react-native/typescript-config": "0.81.1",
     "@types/jest": "^29.5.13",
+    "@types/node": "^24.3.1",
     "@types/react": "^19.1.0",
     "@types/react-test-renderer": "^19.1.0",
     "eslint": "^8.19.0",

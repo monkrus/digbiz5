@@ -1,0 +1,85 @@
+default_platform(:android)
+
+platform :android do
+  desc "Build the Android app for development"
+  lane :build do
+    gradle(
+      task: "assembleDebug",
+      project_dir: "android/"
+    )
+  end
+
+  desc "Build release APK"
+  lane :build_release do
+    gradle(
+      task: "assembleRelease",
+      project_dir: "android/"
+    )
+  end
+
+  desc "Build release AAB (App Bundle)"
+  lane :build_aab do
+    gradle(
+      task: "bundleRelease",
+      project_dir: "android/"
+    )
+  end
+
+  desc "Deploy to Google Play Internal Testing"
+  lane :internal do
+    gradle(
+      task: "bundleRelease",
+      project_dir: "android/"
+    )
+    
+    upload_to_play_store(
+      track: "internal",
+      release_status: "draft",
+      aab: "android/app/build/outputs/bundle/release/app-release.aab"
+    )
+  end
+
+  desc "Deploy to Google Play Beta"
+  lane :beta do
+    gradle(
+      task: "bundleRelease",
+      project_dir: "android/"
+    )
+    
+    upload_to_play_store(
+      track: "beta",
+      release_status: "draft",
+      aab: "android/app/build/outputs/bundle/release/app-release.aab"
+    )
+  end
+
+  desc "Deploy to Google Play Production"
+  lane :release do
+    gradle(
+      task: "bundleRelease",
+      project_dir: "android/"
+    )
+    
+    upload_to_play_store(
+      track: "production",
+      release_status: "draft",
+      aab: "android/app/build/outputs/bundle/release/app-release.aab"
+    )
+  end
+
+  desc "Run tests"
+  lane :test do
+    gradle(
+      task: "test",
+      project_dir: "android/"
+    )
+  end
+
+  desc "Run lint checks"
+  lane :lint do
+    gradle(
+      task: "lint",
+      project_dir: "android/"
+    )
+  end
+end
