@@ -120,7 +120,7 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ route }) => {
 
       const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
       return () => subscription.remove();
-    }, [hasUnsavedChanges])
+    }, [hasUnsavedChanges, handleBackPress])
   );
 
   const handleFormChange = useCallback((field: keyof ProfileFormData, value: any) => {
@@ -261,14 +261,14 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ route }) => {
     );
   };
 
-  const handleBackPress = () => {
+  const handleBackPress = useCallback(() => {
     if (hasUnsavedChanges) {
       setShowUnsavedChanges(true);
       setPendingNavigation(() => () => navigation.goBack());
     } else {
       navigation.goBack();
     }
-  };
+  }, [hasUnsavedChanges, navigation]);
 
   const handleUnsavedChangesDecision = (save: boolean, discard: boolean) => {
     setShowUnsavedChanges(false);

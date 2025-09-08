@@ -105,11 +105,11 @@ class APIClient {
   }
 
   setAuthToken(token: string): void {
-    this.defaultHeaders['Authorization'] = `Bearer ${token}`;
+    this.defaultHeaders.Authorization = `Bearer ${token}`;
   }
 
   removeAuthToken(): void {
-    delete this.defaultHeaders['Authorization'];
+    delete this.defaultHeaders.Authorization;
   }
 }
 

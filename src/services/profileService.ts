@@ -122,11 +122,11 @@ class ProfileAPIClient {
   }
 
   setAuthToken(token: string): void {
-    this.defaultHeaders['Authorization'] = `Bearer ${token}`;
+    this.defaultHeaders.Authorization = `Bearer ${token}`;
   }
 
   removeAuthToken(): void {
-    delete this.defaultHeaders['Authorization'];
+    delete this.defaultHeaders.Authorization;
   }
 }
 
@@ -582,7 +582,7 @@ export class ProfileService {
     try {
       const response = await fetch(`${this.baseURL}/${profileId}/export`, {
         method: 'GET',
-        headers: this.apiClient['defaultHeaders'],
+        headers: (this.apiClient as any).defaultHeaders,
       });
 
       if (!response.ok) {

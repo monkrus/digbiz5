@@ -12,7 +12,6 @@ import {
   JWTTokens,
   LoginCredentials,
   RegisterData,
-  SocialLoginData,
   PasswordResetData,
   PasswordUpdateData,
 } from '../types/auth';

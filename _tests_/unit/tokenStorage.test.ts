@@ -87,8 +87,8 @@ describe('TokenStorageService', () => {
     });
 
     it('should generate consistent encryption key', () => {
-      const storage1 = new TokenStorageService();
-      const storage2 = new TokenStorageService();
+      new TokenStorageService();
+      new TokenStorageService();
 
       expect(MMKV).toHaveBeenCalledTimes(3); // Original + 2 new instances
 

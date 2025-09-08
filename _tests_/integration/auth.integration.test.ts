@@ -11,15 +11,8 @@
 
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
-import {
-  authService,
-  AuthenticationService,
-} from '../../src/services/authService';
-import { tokenStorage } from '../../src/services/tokenStorage';
-import { authSlice, AuthState } from '../../src/store/authSlice';
+import { authSlice } from '../../src/store/authSlice';
 import { useAuth } from '../../src/hooks/useAuth';
-import { GoogleAuthService } from '../../src/services/googleAuthService';
-import { LinkedInAuthService } from '../../src/services/linkedinAuthService';
 import {
   LoginCredentials,
   RegisterData,
@@ -236,7 +229,7 @@ describe('Authentication Integration', () => {
         },
       };
 
-      const googleAuthService = new GoogleAuthService();
+      // Google auth service would be used in actual implementation
       const setTokensSpy = jest
         .spyOn(tokenStorage, 'setTokens')
         .mockResolvedValue();

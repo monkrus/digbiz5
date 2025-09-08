@@ -10,8 +10,6 @@ import { authService } from './authService';
 import { tokenStorage } from './tokenStorage';
 import {
   validateTokens,
-  createTokenRefreshTimer,
-  createTokenExpirationTimer,
   getOptimalRefreshTime,
 } from '../utils/tokenUtils';
 
