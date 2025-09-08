@@ -1,18 +1,22 @@
 /**
  * Profile Hook Unit Tests
- * 
+ *
  * This test suite validates the useProfile hook including state management,
  * CRUD operations, error handling, and helper functions.
  */
 
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react-hooks';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import React from 'react';
 
 import { useProfile } from '../../../src/hooks/useProfile';
 import { profileSlice } from '../../../src/store/profileSlice';
-import { UserProfile, ProfileFormData, ProfilePhotoData } from '../../../src/types/profile';
+import {
+  UserProfile,
+  ProfileFormData,
+  ProfilePhotoData,
+} from '../../../src/types/profile';
 
 // Mock the profile service
 jest.mock('../../../src/services/profileService', () => ({
@@ -128,18 +132,25 @@ describe('useProfile Hook', () => {
           phone: '+1234567890',
           location: 'SF',
           website: 'https://example.com',
-          socialLinks: { linkedin: null, twitter: null, github: null, instagram: null, facebook: null },
+          socialLinks: {
+            linkedin: null,
+            twitter: null,
+            github: null,
+            instagram: null,
+            facebook: null,
+          },
           skills: ['JavaScript'],
           isPublic: true,
         };
 
         // Mock successful dispatch
         const mockDispatch = jest.fn().mockResolvedValue({
-          unwrap: () => Promise.resolve({
-            success: true,
-            profile: mockProfile,
-            message: 'Profile created successfully',
-          }),
+          unwrap: () =>
+            Promise.resolve({
+              success: true,
+              profile: mockProfile,
+              message: 'Profile created successfully',
+            }),
         });
 
         store.dispatch = mockDispatch;
@@ -166,7 +177,13 @@ describe('useProfile Hook', () => {
           phone: '',
           location: '',
           website: '',
-          socialLinks: { linkedin: null, twitter: null, github: null, instagram: null, facebook: null },
+          socialLinks: {
+            linkedin: null,
+            twitter: null,
+            github: null,
+            instagram: null,
+            facebook: null,
+          },
           skills: [],
           isPublic: false,
         };
@@ -191,11 +208,12 @@ describe('useProfile Hook', () => {
         const updateData = { name: 'Jane Doe', title: 'Senior Engineer' };
 
         const mockDispatch = jest.fn().mockResolvedValue({
-          unwrap: () => Promise.resolve({
-            success: true,
-            profile: { ...mockProfile, ...updateData },
-            message: 'Profile updated successfully',
-          }),
+          unwrap: () =>
+            Promise.resolve({
+              success: true,
+              profile: { ...mockProfile, ...updateData },
+              message: 'Profile updated successfully',
+            }),
         });
 
         store.dispatch = mockDispatch;
@@ -204,7 +222,10 @@ describe('useProfile Hook', () => {
 
         let updateResult: any;
         await act(async () => {
-          updateResult = await result.current.updateUserProfile('profile-123', updateData);
+          updateResult = await result.current.updateUserProfile(
+            'profile-123',
+            updateData,
+          );
         });
 
         expect(updateResult.success).toBe(true);
@@ -234,9 +255,10 @@ describe('useProfile Hook', () => {
 
       it('should fetch profile if not cached', async () => {
         const mockDispatch = jest.fn().mockResolvedValue({
-          unwrap: () => Promise.resolve({
-            profile: mockProfile,
-          }),
+          unwrap: () =>
+            Promise.resolve({
+              profile: mockProfile,
+            }),
         });
 
         store.dispatch = mockDispatch;
@@ -253,7 +275,9 @@ describe('useProfile Hook', () => {
       });
 
       it('should handle fetch profile failure', async () => {
-        const mockDispatch = jest.fn().mockRejectedValue(new Error('Profile not found'));
+        const mockDispatch = jest
+          .fn()
+          .mockRejectedValue(new Error('Profile not found'));
         store.dispatch = mockDispatch;
 
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
@@ -266,7 +290,10 @@ describe('useProfile Hook', () => {
         });
 
         expect(profile).toBeNull();
-        expect(consoleSpy).toHaveBeenCalledWith('Failed to fetch profile:', expect.any(Error));
+        expect(consoleSpy).toHaveBeenCalledWith(
+          'Failed to fetch profile:',
+          expect.any(Error),
+        );
 
         consoleSpy.mockRestore();
       });
@@ -282,11 +309,12 @@ describe('useProfile Hook', () => {
         };
 
         const mockDispatch = jest.fn().mockResolvedValue({
-          unwrap: () => Promise.resolve({
-            success: true,
-            photoUrl: 'https://example.com/photo.jpg',
-            message: 'Photo uploaded successfully',
-          }),
+          unwrap: () =>
+            Promise.resolve({
+              success: true,
+              photoUrl: 'https://example.com/photo.jpg',
+              message: 'Photo uploaded successfully',
+            }),
         });
 
         store.dispatch = mockDispatch;
@@ -295,7 +323,10 @@ describe('useProfile Hook', () => {
 
         let uploadResult: any;
         await act(async () => {
-          uploadResult = await result.current.uploadPhoto('profile-123', photoData);
+          uploadResult = await result.current.uploadPhoto(
+            'profile-123',
+            photoData,
+          );
         });
 
         expect(uploadResult.success).toBe(true);
@@ -312,9 +343,10 @@ describe('useProfile Hook', () => {
       };
 
       const mockDispatch = jest.fn().mockResolvedValue({
-        unwrap: () => Promise.resolve({
-          profiles: [mockProfile],
-        }),
+        unwrap: () =>
+          Promise.resolve({
+            profiles: [mockProfile],
+          }),
       });
 
       store.dispatch = mockDispatch;
@@ -330,7 +362,9 @@ describe('useProfile Hook', () => {
     });
 
     it('should handle search failure', async () => {
-      const mockDispatch = jest.fn().mockRejectedValue(new Error('Search failed'));
+      const mockDispatch = jest
+        .fn()
+        .mockRejectedValue(new Error('Search failed'));
       store.dispatch = mockDispatch;
 
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
@@ -343,7 +377,10 @@ describe('useProfile Hook', () => {
       });
 
       expect(searchResult).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('Profile search failed:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Profile search failed:',
+        expect.any(Error),
+      );
 
       consoleSpy.mockRestore();
     });
@@ -484,7 +521,8 @@ describe('useProfile Hook', () => {
       it('should calculate correct percentage for complete profile', () => {
         const { result } = renderHook(() => useProfile(), { wrapper });
 
-        const percentage = result.current.getProfileCompletionPercentage(mockProfile);
+        const percentage =
+          result.current.getProfileCompletionPercentage(mockProfile);
         expect(percentage).toBe(100);
       });
 
@@ -497,12 +535,19 @@ describe('useProfile Hook', () => {
           website: null,
           profilePhoto: null,
           skills: [],
-          socialLinks: { linkedin: null, twitter: null, github: null, instagram: null, facebook: null },
+          socialLinks: {
+            linkedin: null,
+            twitter: null,
+            github: null,
+            instagram: null,
+            facebook: null,
+          },
         };
 
         const { result } = renderHook(() => useProfile(), { wrapper });
 
-        const percentage = result.current.getProfileCompletionPercentage(partialProfile);
+        const percentage =
+          result.current.getProfileCompletionPercentage(partialProfile);
         // Only name, title, company, email completed = 4 out of 11 fields = ~36%
         expect(percentage).toBe(36);
       });
@@ -576,12 +621,19 @@ describe('useProfile Hook', () => {
           company: '',
           profilePhoto: null,
           skills: [],
-          socialLinks: { linkedin: null, twitter: null, github: null, instagram: null, facebook: null },
+          socialLinks: {
+            linkedin: null,
+            twitter: null,
+            github: null,
+            instagram: null,
+            facebook: null,
+          },
         };
 
         const { result } = renderHook(() => useProfile(), { wrapper });
 
-        const formatted = result.current.formatProfileForDisplay(incompleteProfile);
+        const formatted =
+          result.current.formatProfileForDisplay(incompleteProfile);
 
         expect(formatted.displayName).toBe('Unknown User');
         expect(formatted.displayTitle).toBe('No title');
@@ -596,7 +648,9 @@ describe('useProfile Hook', () => {
 
   describe('Activities and Stats', () => {
     it('should fetch profile stats', async () => {
-      const mockDispatch = jest.fn().mockResolvedValue({ unwrap: () => Promise.resolve() });
+      const mockDispatch = jest
+        .fn()
+        .mockResolvedValue({ unwrap: () => Promise.resolve() });
       store.dispatch = mockDispatch;
 
       const { result } = renderHook(() => useProfile(), { wrapper });
@@ -609,7 +663,9 @@ describe('useProfile Hook', () => {
     });
 
     it('should fetch profile activities', async () => {
-      const mockDispatch = jest.fn().mockResolvedValue({ unwrap: () => Promise.resolve() });
+      const mockDispatch = jest
+        .fn()
+        .mockResolvedValue({ unwrap: () => Promise.resolve() });
       store.dispatch = mockDispatch;
 
       const { result } = renderHook(() => useProfile(), { wrapper });
@@ -622,7 +678,9 @@ describe('useProfile Hook', () => {
     });
 
     it('should handle stats fetch failure', async () => {
-      const mockDispatch = jest.fn().mockRejectedValue(new Error('Stats fetch failed'));
+      const mockDispatch = jest
+        .fn()
+        .mockRejectedValue(new Error('Stats fetch failed'));
       store.dispatch = mockDispatch;
 
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
@@ -633,7 +691,10 @@ describe('useProfile Hook', () => {
         await result.current.getProfileStats();
       });
 
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to fetch profile stats:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to fetch profile stats:',
+        expect.any(Error),
+      );
 
       consoleSpy.mockRestore();
     });

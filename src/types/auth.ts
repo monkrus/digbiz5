@@ -25,6 +25,7 @@ export interface JWTTokens {
   accessToken: string;
   refreshToken: string;
   expiresIn: number; // seconds
+  refreshExpiresIn?: number; // seconds for refresh token expiry
   tokenType: 'Bearer';
 }
 

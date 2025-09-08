@@ -8,7 +8,7 @@
 import {
   GoogleSignin,
   statusCodes,
-  GoogleSigninConfiguration,
+  ConfigureParams,
   User as GoogleUser,
 } from '@react-native-google-signin/google-signin';
 import { SocialLoginData, AuthResponse } from '../types/auth';
@@ -17,7 +17,7 @@ import { authService } from './authService';
 /**
  * Google OAuth configuration
  */
-const GOOGLE_CONFIG: GoogleSigninConfiguration = {
+const GOOGLE_CONFIG: ConfigureParams = {
   webClientId: '', // Will be set from environment config
   offlineAccess: true, // For refresh tokens
   hostedDomain: '', // Optional: restrict to specific domain
@@ -38,7 +38,7 @@ export class GoogleAuthService {
    */
   async configure(webClientId: string, iosClientId?: string): Promise<void> {
     try {
-      const config: GoogleSigninConfiguration = {
+      const config: ConfigureParams = {
         ...GOOGLE_CONFIG,
         webClientId,
         ...(iosClientId && { iosClientId }),
@@ -72,7 +72,7 @@ export class GoogleAuthService {
    */
   async isSignedIn(): Promise<boolean> {
     try {
-      return await GoogleSignin.isSignedIn();
+      return GoogleSignin.hasPreviousSignIn();
     } catch (error) {
       console.error('Failed to check Google sign-in status:', error);
       return false;
@@ -85,7 +85,7 @@ export class GoogleAuthService {
   async getCurrentUser(): Promise<GoogleUser | null> {
     try {
       if (await this.isSignedIn()) {
-        return await GoogleSignin.getCurrentUser();
+        return GoogleSignin.getCurrentUser();
       }
       return null;
     } catch (error) {
@@ -107,11 +107,13 @@ export class GoogleAuthService {
       await GoogleSignin.hasPlayServices();
 
       // Sign in and get user info
-      const userInfo = await GoogleSignin.signIn();
+      const signInResponse = await GoogleSignin.signIn();
 
-      if (!userInfo.user) {
-        throw new Error('Google Sign-In did not return user information');
+      if (signInResponse.type !== 'success') {
+        throw new Error('Google Sign-In was cancelled or failed');
       }
+
+      const userInfo = signInResponse.data;
 
       // Get access tokens
       const tokens = await GoogleSignin.getTokens();
@@ -202,9 +204,12 @@ export class GoogleAuthService {
    */
   async signInSilently(): Promise<GoogleUser | null> {
     try {
-      const userInfo = await GoogleSignin.signInSilently();
-      console.log('Google silent sign-in successful');
-      return userInfo;
+      const signInResponse = await GoogleSignin.signInSilently();
+      if (signInResponse.type === 'success') {
+        console.log('Google silent sign-in successful');
+        return signInResponse.data;
+      }
+      return null;
     } catch (error) {
       console.error('Google silent sign-in failed:', error);
       return null;
@@ -214,9 +219,9 @@ export class GoogleAuthService {
   /**
    * Clear cached user data
    */
-  async clearCachedAccessToken(): Promise<void> {
+  async clearCachedAccessToken(tokenString: string): Promise<void> {
     try {
-      await GoogleSignin.clearCachedAccessToken();
+      await GoogleSignin.clearCachedAccessToken(tokenString);
       console.log('Google cached access token cleared');
     } catch (error) {
       console.error('Failed to clear Google cached access token:', error);

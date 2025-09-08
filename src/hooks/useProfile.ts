@@ -1,6 +1,6 @@
 /**
  * Profile Hook
- * 
+ *
  * This hook provides a clean interface to profile functionality including
  * profile CRUD operations, photo uploads, search, and state management.
  */
@@ -64,46 +64,67 @@ interface UseProfileReturn {
   lastUpdated: string | null;
 
   // Actions
-  createUserProfile: (profileData: ProfileFormData) => Promise<{ success: boolean; message?: string; profile?: UserProfile }>;
-  updateUserProfile: (profileId: string, updateData: ProfileUpdateData) => Promise<{ success: boolean; message?: string; profile?: UserProfile }>;
-  uploadPhoto: (profileId: string, photo: ProfilePhotoData) => Promise<{ success: boolean; photoUrl?: string; message?: string }>;
+  createUserProfile: (
+    profileData: ProfileFormData,
+  ) => Promise<{ success: boolean; message?: string; profile?: UserProfile }>;
+  updateUserProfile: (
+    profileId: string,
+    updateData: ProfileUpdateData,
+  ) => Promise<{ success: boolean; message?: string; profile?: UserProfile }>;
+  uploadPhoto: (
+    profileId: string,
+    photo: ProfilePhotoData,
+  ) => Promise<{ success: boolean; photoUrl?: string; message?: string }>;
   getProfile: (profileId: string) => Promise<UserProfile | null>;
   searchUserProfiles: (params: ProfileSearchParams) => Promise<UserProfile[]>;
   getProfileStats: () => Promise<void>;
   getProfileActivities: (profileId: string) => Promise<void>;
   getConnectionRequests: () => Promise<void>;
-  
+
   // Error handling
   clearProfileError: () => void;
   clearPhotoUploadError: () => void;
   clearProfileSearchError: () => void;
-  
+
   // Search functionality
   updateSearchQuery: (query: string) => void;
   updateSearchFilters: (filters: ProfileSearchParams) => void;
   clearProfileSearchResults: () => void;
-  
+
   // Cache management
   cacheProfileData: (profile: UserProfile) => void;
   getCachedProfile: (profileId: string) => UserProfile | null;
-  
+
   // UI state management
   setHasUnsavedChanges: (hasChanges: boolean) => void;
   setProfileActiveSection: (section: string | null) => void;
-  
+
   // Profile completion
   updateCompletion: (completion: ProfileCompletionStatus) => void;
-  
+
   // Activities
   addProfileActivity: (activity: ProfileActivity) => void;
-  
+
   // Connection requests
   respondToConnectionRequest: (requestId: string, accept: boolean) => void;
+
+  // Additional methods
+  createProfile: (
+    profileData: ProfileFormData,
+  ) => Promise<{ success: boolean; message?: string; profile?: UserProfile }>;
+  uploadProfilePhoto: (
+    profileId: string,
+    photo: ProfilePhotoData,
+  ) => Promise<{ success: boolean; photoUrl?: string; message?: string }>;
+  isProfileComplete: (profile?: UserProfile) => boolean;
+  getProfileCompletionPercentage: (profile?: UserProfile) => number;
+  canEditProfile: (profile?: UserProfile) => boolean;
+  formatProfileForDisplay: (profile?: UserProfile) => any;
 }
 
 export const useProfile = (): UseProfileReturn => {
   const dispatch = useDispatch<AppDispatch>();
-  
+
   const {
     currentProfile,
     profiles,
@@ -127,78 +148,97 @@ export const useProfile = (): UseProfileReturn => {
   } = useSelector((state: RootState) => state.profile);
 
   // Profile CRUD operations
-  const createUserProfile = useCallback(async (profileData: ProfileFormData) => {
-    try {
-      const result = await dispatch(createProfile(profileData)).unwrap();
-      return {
-        success: true,
-        profile: result.profile,
-        message: result.message,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error as string,
-      };
-    }
-  }, [dispatch]);
-
-  const updateUserProfile = useCallback(async (profileId: string, updateData: ProfileUpdateData) => {
-    try {
-      const result = await dispatch(updateProfile({ profileId, updateData })).unwrap();
-      return {
-        success: true,
-        profile: result.profile,
-        message: result.message,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error as string,
-      };
-    }
-  }, [dispatch]);
-
-  const uploadPhoto = useCallback(async (profileId: string, photo: ProfilePhotoData) => {
-    try {
-      const result = await dispatch(uploadProfilePhoto({ profileId, photo })).unwrap();
-      return {
-        success: true,
-        photoUrl: result.photoUrl,
-        message: result.message,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error as string,
-      };
-    }
-  }, [dispatch]);
-
-  const getProfile = useCallback(async (profileId: string): Promise<UserProfile | null> => {
-    try {
-      // Check cache first
-      if (profiles[profileId]) {
-        return profiles[profileId];
+  const createUserProfile = useCallback(
+    async (profileData: ProfileFormData) => {
+      try {
+        const result = await dispatch(createProfile(profileData)).unwrap();
+        return {
+          success: true,
+          profile: result.profile,
+          message: result.message,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          message: error as string,
+        };
       }
+    },
+    [dispatch],
+  );
 
-      const result = await dispatch(fetchProfile(profileId)).unwrap();
-      return result.profile;
-    } catch (error) {
-      console.error('Failed to fetch profile:', error);
-      return null;
-    }
-  }, [dispatch, profiles]);
+  const updateUserProfile = useCallback(
+    async (profileId: string, updateData: ProfileUpdateData) => {
+      try {
+        const result = await dispatch(
+          updateProfile({ profileId, updateData }),
+        ).unwrap();
+        return {
+          success: true,
+          profile: result.profile,
+          message: result.message,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          message: error as string,
+        };
+      }
+    },
+    [dispatch],
+  );
 
-  const searchUserProfiles = useCallback(async (params: ProfileSearchParams): Promise<UserProfile[]> => {
-    try {
-      const result = await dispatch(searchProfiles(params)).unwrap();
-      return result.profiles;
-    } catch (error) {
-      console.error('Profile search failed:', error);
-      return [];
-    }
-  }, [dispatch]);
+  const uploadPhoto = useCallback(
+    async (profileId: string, photo: ProfilePhotoData) => {
+      try {
+        const result = await dispatch(
+          uploadProfilePhoto({ profileId, photo }),
+        ).unwrap();
+        return {
+          success: true,
+          photoUrl: result.photoUrl,
+          message: result.message,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          message: error as string,
+        };
+      }
+    },
+    [dispatch],
+  );
+
+  const getProfile = useCallback(
+    async (profileId: string): Promise<UserProfile | null> => {
+      try {
+        // Check cache first
+        if (profiles[profileId]) {
+          return profiles[profileId];
+        }
+
+        const result = await dispatch(fetchProfile(profileId)).unwrap();
+        return result.profile;
+      } catch (error) {
+        console.error('Failed to fetch profile:', error);
+        return null;
+      }
+    },
+    [dispatch, profiles],
+  );
+
+  const searchUserProfiles = useCallback(
+    async (params: ProfileSearchParams): Promise<UserProfile[]> => {
+      try {
+        const result = await dispatch(searchProfiles(params)).unwrap();
+        return result.profiles;
+      } catch (error) {
+        console.error('Profile search failed:', error);
+        return [];
+      }
+    },
+    [dispatch],
+  );
 
   const getProfileStats = useCallback(async () => {
     try {
@@ -208,13 +248,16 @@ export const useProfile = (): UseProfileReturn => {
     }
   }, [dispatch]);
 
-  const getProfileActivities = useCallback(async (profileId: string) => {
-    try {
-      await dispatch(fetchProfileActivities(profileId));
-    } catch (error) {
-      console.error('Failed to fetch profile activities:', error);
-    }
-  }, [dispatch]);
+  const getProfileActivities = useCallback(
+    async (profileId: string) => {
+      try {
+        await dispatch(fetchProfileActivities(profileId));
+      } catch (error) {
+        console.error('Failed to fetch profile activities:', error);
+      }
+    },
+    [dispatch],
+  );
 
   const getConnectionRequests = useCallback(async () => {
     try {
@@ -238,106 +281,146 @@ export const useProfile = (): UseProfileReturn => {
   }, [dispatch]);
 
   // Search functionality
-  const updateSearchQuery = useCallback((query: string) => {
-    dispatch(setSearchQuery(query));
-  }, [dispatch]);
+  const updateSearchQuery = useCallback(
+    (query: string) => {
+      dispatch(setSearchQuery(query));
+    },
+    [dispatch],
+  );
 
-  const updateSearchFilters = useCallback((filters: ProfileSearchParams) => {
-    dispatch(setSearchFilters(filters));
-  }, [dispatch]);
+  const updateSearchFilters = useCallback(
+    (filters: ProfileSearchParams) => {
+      dispatch(setSearchFilters(filters));
+    },
+    [dispatch],
+  );
 
   const clearProfileSearchResults = useCallback(() => {
     dispatch(clearSearchResults());
   }, [dispatch]);
 
   // Cache management
-  const cacheProfileData = useCallback((profile: UserProfile) => {
-    dispatch(cacheProfile(profile));
-  }, [dispatch]);
+  const cacheProfileData = useCallback(
+    (profile: UserProfile) => {
+      dispatch(cacheProfile(profile));
+    },
+    [dispatch],
+  );
 
-  const getCachedProfile = useCallback((profileId: string): UserProfile | null => {
-    return profiles[profileId] || null;
-  }, [profiles]);
+  const getCachedProfile = useCallback(
+    (profileId: string): UserProfile | null => {
+      return profiles[profileId] || null;
+    },
+    [profiles],
+  );
 
   // UI state management
-  const setHasUnsavedChanges = useCallback((hasChanges: boolean) => {
-    dispatch(setUnsavedChanges(hasChanges));
-  }, [dispatch]);
+  const setHasUnsavedChanges = useCallback(
+    (hasChanges: boolean) => {
+      dispatch(setUnsavedChanges(hasChanges));
+    },
+    [dispatch],
+  );
 
-  const setProfileActiveSection = useCallback((section: string | null) => {
-    dispatch(setActiveSection(section));
-  }, [dispatch]);
+  const setProfileActiveSection = useCallback(
+    (section: string | null) => {
+      dispatch(setActiveSection(section));
+    },
+    [dispatch],
+  );
 
   // Profile completion
-  const updateCompletion = useCallback((completionStatus: ProfileCompletionStatus) => {
-    dispatch(updateProfileCompletion(completionStatus));
-  }, [dispatch]);
+  const updateCompletion = useCallback(
+    (completionStatus: ProfileCompletionStatus) => {
+      dispatch(updateProfileCompletion(completionStatus));
+    },
+    [dispatch],
+  );
 
   // Activities
-  const addProfileActivity = useCallback((activity: ProfileActivity) => {
-    dispatch(addActivity(activity));
-  }, [dispatch]);
+  const addProfileActivity = useCallback(
+    (activity: ProfileActivity) => {
+      dispatch(addActivity(activity));
+    },
+    [dispatch],
+  );
 
   // Connection requests
-  const respondToConnectionRequest = useCallback((requestId: string, accept: boolean) => {
-    const status = accept ? 'accepted' : 'rejected';
-    dispatch(updateConnectionRequestStatus({ requestId, status }));
-  }, [dispatch]);
+  const respondToConnectionRequest = useCallback(
+    (requestId: string, accept: boolean) => {
+      const status = accept ? 'accepted' : 'rejected';
+      dispatch(updateConnectionRequestStatus({ requestId, status }));
+    },
+    [dispatch],
+  );
 
   // Helper functions
-  const isProfileComplete = useCallback((profile: UserProfile | null): boolean => {
-    if (!profile) return false;
-    
-    const requiredFields = [
-      profile.name,
-      profile.title,
-      profile.company,
-      profile.bio,
-      profile.email,
-    ];
-    
-    return requiredFields.every(field => field && field.trim().length > 0);
-  }, []);
+  const isProfileComplete = useCallback(
+    (profile: UserProfile | null): boolean => {
+      if (!profile) return false;
 
-  const getProfileCompletionPercentage = useCallback((profile: UserProfile | null): number => {
-    if (!profile) return 0;
-    
-    const fields = [
-      profile.name,
-      profile.title,
-      profile.company,
-      profile.bio,
-      profile.email,
-      profile.phone,
-      profile.location,
-      profile.website,
-      profile.profilePhoto,
-      profile.skills.length > 0,
-      Object.values(profile.socialLinks).some(link => link),
-    ];
-    
-    const completedFields = fields.filter(Boolean).length;
-    return Math.round((completedFields / fields.length) * 100);
-  }, []);
+      const requiredFields = [
+        profile.name,
+        profile.title,
+        profile.company,
+        profile.bio,
+        profile.email,
+      ];
 
-  const canEditProfile = useCallback((profile: UserProfile | null): boolean => {
-    if (!profile || !currentProfile) return false;
-    return profile.userId === currentProfile.userId;
-  }, [currentProfile]);
+      return requiredFields.every(field => field && field.trim().length > 0);
+    },
+    [],
+  );
 
-  const formatProfileForDisplay = useCallback((profile: UserProfile) => {
-    return {
-      ...profile,
-      displayName: profile.name || 'Unknown User',
-      displayTitle: profile.title || 'No title',
-      displayCompany: profile.company || 'No company',
-      hasProfilePhoto: !!profile.profilePhoto,
-      skillsCount: profile.skills.length,
-      socialLinksCount: Object.values(profile.socialLinks).filter(Boolean).length,
-      isComplete: isProfileComplete(profile),
-      completionPercentage: getProfileCompletionPercentage(profile),
-    };
-  }, [isProfileComplete, getProfileCompletionPercentage]);
+  const getProfileCompletionPercentage = useCallback(
+    (profile: UserProfile | null): number => {
+      if (!profile) return 0;
+
+      const fields = [
+        profile.name,
+        profile.title,
+        profile.company,
+        profile.bio,
+        profile.email,
+        profile.phone,
+        profile.location,
+        profile.website,
+        profile.profilePhoto,
+        profile.skills.length > 0,
+        Object.values(profile.socialLinks).some(link => link),
+      ];
+
+      const completedFields = fields.filter(Boolean).length;
+      return Math.round((completedFields / fields.length) * 100);
+    },
+    [],
+  );
+
+  const canEditProfile = useCallback(
+    (profile: UserProfile | null): boolean => {
+      if (!profile || !currentProfile) return false;
+      return profile.userId === currentProfile.userId;
+    },
+    [currentProfile],
+  );
+
+  const formatProfileForDisplay = useCallback(
+    (profile: UserProfile) => {
+      return {
+        ...profile,
+        displayName: profile.name || 'Unknown User',
+        displayTitle: profile.title || 'No title',
+        displayCompany: profile.company || 'No company',
+        hasProfilePhoto: !!profile.profilePhoto,
+        skillsCount: profile.skills.length,
+        socialLinksCount: Object.values(profile.socialLinks).filter(Boolean)
+          .length,
+        isComplete: isProfileComplete(profile),
+        completionPercentage: getProfileCompletionPercentage(profile),
+      };
+    },
+    [isProfileComplete, getProfileCompletionPercentage],
+  );
 
   return {
     // State
@@ -403,5 +486,9 @@ export const useProfile = (): UseProfileReturn => {
     getProfileCompletionPercentage,
     canEditProfile,
     formatProfileForDisplay,
+
+    // Aliases for compatibility
+    createProfile: createUserProfile,
+    uploadProfilePhoto: uploadPhoto,
   };
 };

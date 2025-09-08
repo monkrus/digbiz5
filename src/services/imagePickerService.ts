@@ -1,6 +1,6 @@
 /**
  * Image Picker Service
- * 
+ *
  * This service handles image selection, cropping, and processing for profile photos.
  * It provides a unified interface for camera, gallery, and image manipulation operations.
  */
@@ -8,7 +8,6 @@
 import {
   launchImageLibrary,
   launchCamera,
-  ImagePickerOptions,
   ImagePickerResponse,
   MediaType,
 } from 'react-native-image-picker';
@@ -19,7 +18,13 @@ import {
   Options as CropperOptions,
 } from 'react-native-image-crop-picker';
 import { Alert, Platform } from 'react-native';
-import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import {
+  check,
+  request,
+  PERMISSIONS,
+  RESULTS,
+  Permission,
+} from 'react-native-permissions';
 import { ProfilePhotoData } from '../types/profile';
 
 export interface ImagePickerResult {
@@ -74,7 +79,7 @@ export class ImagePickerService {
    */
   async pickImage(
     source: ImageSource = 'both',
-    options?: Partial<ImagePickerServiceOptions>
+    options?: Partial<ImagePickerServiceOptions>,
   ): Promise<ImagePickerResult> {
     const mergedOptions = { ...this.defaultOptions, ...options };
 
@@ -108,14 +113,14 @@ export class ImagePickerService {
    * Pick image from camera
    */
   private async pickFromCamera(
-    options: ImagePickerServiceOptions
+    options: ImagePickerServiceOptions,
   ): Promise<ImagePickerResult> {
     try {
       if (options.cropping) {
         const image = await openCamera(options.cropperOptions!);
         return this.processCroppedImage(image);
       } else {
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
           const imagePickerOptions: ImagePickerOptions = {
             mediaType: options.mediaType,
             quality: options.quality,
@@ -124,13 +129,16 @@ export class ImagePickerService {
             includeBase64: options.includeBase64,
           };
 
-          launchCamera(imagePickerOptions, (response) => {
+          launchCamera(imagePickerOptions, response => {
             resolve(this.processImagePickerResponse(response));
           });
         });
       }
     } catch (error) {
-      if (error instanceof Error && error.message === 'User cancelled image selection') {
+      if (
+        error instanceof Error &&
+        error.message === 'User cancelled image selection'
+      ) {
         return { success: false, cancelled: true };
       }
       throw error;
@@ -141,14 +149,14 @@ export class ImagePickerService {
    * Pick image from gallery
    */
   private async pickFromGallery(
-    options: ImagePickerServiceOptions
+    options: ImagePickerServiceOptions,
   ): Promise<ImagePickerResult> {
     try {
       if (options.cropping) {
         const image = await openPicker(options.cropperOptions!);
         return this.processCroppedImage(image);
       } else {
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
           const imagePickerOptions: ImagePickerOptions = {
             mediaType: options.mediaType,
             quality: options.quality,
@@ -157,13 +165,16 @@ export class ImagePickerService {
             includeBase64: options.includeBase64,
           };
 
-          launchImageLibrary(imagePickerOptions, (response) => {
+          launchImageLibrary(imagePickerOptions, response => {
             resolve(this.processImagePickerResponse(response));
           });
         });
       }
     } catch (error) {
-      if (error instanceof Error && error.message === 'User cancelled image selection') {
+      if (
+        error instanceof Error &&
+        error.message === 'User cancelled image selection'
+      ) {
         return { success: false, cancelled: true };
       }
       throw error;
@@ -174,9 +185,9 @@ export class ImagePickerService {
    * Show image source selection dialog
    */
   private async showImageSourceSelection(
-    options: ImagePickerServiceOptions
+    options: ImagePickerServiceOptions,
   ): Promise<ImagePickerResult> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       Alert.alert(
         'Select Image',
         'Choose how you want to select your profile photo',
@@ -200,7 +211,7 @@ export class ImagePickerService {
               resolve(result);
             },
           },
-        ]
+        ],
       );
     });
   }
@@ -209,7 +220,7 @@ export class ImagePickerService {
    * Process response from react-native-image-picker
    */
   private processImagePickerResponse(
-    response: ImagePickerResponse
+    response: ImagePickerResponse,
   ): ImagePickerResult {
     if (response.didCancel) {
       return { success: false, cancelled: true };
@@ -257,34 +268,38 @@ export class ImagePickerService {
    */
   private async checkPermissions(source: ImageSource): Promise<boolean> {
     try {
-      const permissions = [];
-      
+      const permissions: Permission[] = [];
+
       if (source === 'camera' || source === 'both') {
         permissions.push(
-          Platform.OS === 'ios' ? PERMISSIONS.IOS.CAMERA : PERMISSIONS.ANDROID.CAMERA
+          Platform.OS === 'ios'
+            ? PERMISSIONS.IOS.CAMERA
+            : PERMISSIONS.ANDROID.CAMERA,
         );
       }
-      
+
       if (source === 'gallery' || source === 'both') {
         permissions.push(
           Platform.OS === 'ios'
             ? PERMISSIONS.IOS.PHOTO_LIBRARY
-            : PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE
+            : PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,
         );
       }
 
       // Check permissions
       const results = await Promise.all(
-        permissions.map(permission => check(permission))
+        permissions.map(permission => check(permission)),
       );
 
       // Request permissions if not granted
-      const needsPermission = results.some(result => result !== RESULTS.GRANTED);
+      const needsPermission = results.some(
+        result => result !== RESULTS.GRANTED,
+      );
       if (needsPermission) {
         const requestResults = await Promise.all(
-          permissions.map(permission => request(permission))
+          permissions.map(permission => request(permission)),
         );
-        
+
         return requestResults.every(result => result === RESULTS.GRANTED);
       }
 
@@ -308,7 +323,10 @@ export class ImagePickerService {
     // Check file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(image.type.toLowerCase())) {
-      return { valid: false, error: 'Please select a JPEG, PNG, or WebP image' };
+      return {
+        valid: false,
+        error: 'Please select a JPEG, PNG, or WebP image',
+      };
     }
 
     return { valid: true };
@@ -317,13 +335,15 @@ export class ImagePickerService {
   /**
    * Get image dimensions
    */
-  async getImageDimensions(uri: string): Promise<{ width: number; height: number }> {
+  async getImageDimensions(
+    uri: string,
+  ): Promise<{ width: number; height: number }> {
     return new Promise((resolve, reject) => {
       const Image = require('react-native').Image;
       Image.getSize(
         uri,
         (width: number, height: number) => resolve({ width, height }),
-        (error: any) => reject(error)
+        (error: any) => reject(error),
       );
     });
   }
@@ -335,7 +355,7 @@ export class ImagePickerService {
     image: ProfilePhotoData,
     maxWidth: number = 800,
     maxHeight: number = 800,
-    quality: number = 0.8
+    quality: number = 0.8,
   ): Promise<ProfilePhotoData> {
     try {
       const compressedImage = await openPicker({
@@ -386,9 +406,7 @@ export class ImagePickerService {
         this.getImageDimensions(uri),
         new Promise<any>((resolve, reject) => {
           const RNFS = require('react-native-fs');
-          RNFS.stat(uri)
-            .then(resolve)
-            .catch(reject);
+          RNFS.stat(uri).then(resolve).catch(reject);
         }),
       ]);
 
@@ -426,7 +444,7 @@ export class ImagePickerService {
    */
   static createOptions(
     preset: 'profile' | 'cover' | 'document' | 'custom',
-    customOptions?: Partial<ImagePickerServiceOptions>
+    customOptions?: Partial<ImagePickerServiceOptions>,
   ): ImagePickerServiceOptions {
     const baseOptions: Record<string, Partial<ImagePickerServiceOptions>> = {
       profile: {
@@ -461,7 +479,7 @@ export class ImagePickerService {
 
     const service = new ImagePickerService();
     const presetOptions = preset === 'custom' ? {} : baseOptions[preset];
-    
+
     return {
       ...service.defaultOptions,
       ...presetOptions,
