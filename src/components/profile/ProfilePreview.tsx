@@ -16,7 +16,7 @@ import {
   Alert,
   Share,
 } from 'react-native';
-import { UserProfile, SocialLinks } from '../../types/profile';
+import { UserProfile } from '../../types/profile';
 import { getProfileCompletionPercentage } from '../../utils/profileValidation';
 
 // Icons (you'd import from your icon library)

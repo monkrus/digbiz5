@@ -14,8 +14,8 @@ import {
 
 // Regular expressions for validation
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_REGEX = /^[\+]?[1-9][\d]{0,15}$/;
-const URL_REGEX = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+const PHONE_REGEX = /^[+]?[1-9][\d]{0,15}$/;
+const URL_REGEX = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
 const LINKEDIN_REGEX = /^(https?:\/\/)?(www\.)?linkedin\.com\/(in|pub)\/[\w-]+\/?$/;
 const TWITTER_REGEX = /^(https?:\/\/)?(www\.)?twitter\.com\/[\w]+\/?$/;
 const GITHUB_REGEX = /^(https?:\/\/)?(www\.)?github\.com\/[\w-]+\/?$/;
@@ -70,7 +70,7 @@ export const VALIDATION_RULES = {
 export const validateProfileField = (
   field: ProfileFormField,
   value: any,
-  allValues?: Partial<ProfileFormData>
+  _allValues?: Partial<ProfileFormData>
 ): string | undefined => {
   const stringValue = (value === null || value === undefined) ? '' : 
     (typeof value === 'string' ? value.trim() : String(value));

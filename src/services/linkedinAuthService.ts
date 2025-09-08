@@ -85,7 +85,7 @@ export class LinkedInAuthService {
   /**
    * Exchange authorization code for access token
    */
-  async exchangeCodeForToken(code: string, state: string): Promise<string> {
+  async exchangeCodeForToken(code: string, _state: string): Promise<string> {
     if (!this.config) {
       throw new Error('LinkedIn OAuth not configured');
     }

@@ -6,7 +6,6 @@
  */
 
 import {
-  UserProfile,
   ProfileFormData,
   ProfileUpdateData,
   ProfilePhotoData,
