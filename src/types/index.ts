@@ -10,6 +10,16 @@ export type { LoginFormData, RegisterFormData } from '../utils/formValidation';
 // Config types
 export type { Theme, EnvConfig } from '../utils/config';
 
+// Domain-specific types
+export * from './auth';
+export * from './profile';
+export * from './onboarding';
+export * from './businessCard';
+export * from './contacts';
+export * from './discovery';
+export * from './connections';
+export * from './messaging';
+
 // Common utility types
 export interface ApiResponse<T = any> {
   success: boolean;

@@ -2,6 +2,7 @@ import Config from 'react-native-config';
 
 export interface EnvConfig {
   apiUrl: string;
+  webUrl: string;
   apiTimeout: number;
   appName: string;
   appVersion: string;
@@ -20,6 +21,7 @@ export interface Theme {
 
 export const AppConfig: EnvConfig = {
   apiUrl: Config.API_URL || 'https://api.example.com',
+  webUrl: Config.WEB_URL || 'https://example.com',
   apiTimeout: parseInt(Config.API_TIMEOUT || '5000', 10),
   appName: Config.APP_NAME || 'DigBiz5',
   appVersion: Config.APP_VERSION || '1.0.0',

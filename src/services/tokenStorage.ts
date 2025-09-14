@@ -27,13 +27,21 @@ export class SecureTokenStorage implements TokenStorage {
   private encryptionKey: string;
 
   constructor(instanceId: string = 'auth-storage') {
-    // Initialize MMKV with encryption
+    // Initialize MMKV first without encryption key
     this.storage = new MMKV({
       id: instanceId,
-      encryptionKey: this.getOrCreateEncryptionKey(),
     });
 
+    // Then get or create encryption key using the initialized storage
     this.encryptionKey = this.getOrCreateEncryptionKey();
+
+    // Reinitialize with encryption key if needed
+    if (this.encryptionKey) {
+      this.storage = new MMKV({
+        id: instanceId,
+        encryptionKey: this.encryptionKey,
+      });
+    }
   }
 
   /**

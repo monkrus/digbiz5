@@ -1,22 +1,154 @@
-# Testing Guide
+# 🧪 Testing Guide - Phase 1 & Phase 2
 
-## 📊 Test Suite Overview
+Complete testing suite for the DigBiz mobile application with organized test execution commands.
 
-This project includes a comprehensive test suite with **6 test files** containing **59 total tests** (55 passing, 4 appropriately skipped).
+## 🚀 Quick Start
 
-### 🗂️ Test Structure
+### Run Everything
+
+```bash
+# Run all tests (Phase 1 + Phase 2)
+npm run test:all-phases
+```
+
+### Run by Phase
+
+```bash
+# Phase 1: Authentication & Profile
+npm run test:phase1
+
+# Phase 2: Digital Business Card
+npm run test:phase2
+```
+
+## 📋 Phase 1: Authentication & Profile Tests
+
+### Complete Phase 1 Suite
+
+```bash
+npm run test:phase1              # Basic execution
+npm run test:phase1:verbose      # Detailed output
+npm run test:phase1:coverage     # With coverage report
+```
+
+### Individual Phase 1 Tests
+
+```bash
+# Project Setup
+npm run test:setup               # Project configuration validation
+npm run test:typescript          # TypeScript configuration
+npm run test:linting             # Code quality and linting
+
+# Authentication
+npm run test:auth                # Core authentication service
+npm run test:google-auth         # Google OAuth integration
+npm run test:linkedin-auth       # LinkedIn OAuth integration
+npm run test:tokens              # Token utilities and storage
+
+# Profile Management
+npm run test:profile             # Profile CRUD operations
+npm run test:profile-validation  # Profile data validation
+```
+
+## 🃏 Phase 2: Digital Business Card Tests
+
+### Complete Phase 2 Suite
+
+```bash
+npm run test:phase2              # Basic execution
+npm run test:phase2:verbose      # Detailed output
+npm run test:phase2:coverage     # With coverage report
+```
+
+### Individual Phase 2 Tests
+
+```bash
+# Core Features
+npm run test:card-creation       # Card creation with all field types
+npm run test:qr-code            # QR code generation and scanning
+npm run test:deep-link          # Deep link handling
+npm run test:card-preview       # Card preview rendering
+
+# Advanced Features
+npm run test:sharing            # Share functionality (iOS/Android)
+npm run test:wallet             # Wallet integration (Apple/Google)
+npm run test:businesscard-integration # End-to-end integration
+```
+
+## 🔧 Advanced Test Options
+
+### Individual Test Runner
+
+```bash
+# Run any individual test with options
+node _tests_/scripts/runIndividualTest.js <test-name> [options]
+
+# Examples:
+node _tests_/scripts/runIndividualTest.js qrCode --verbose
+node _tests_/scripts/runIndividualTest.js cardCreation --coverage
+node _tests_/scripts/runIndividualTest.js authService --watch
+
+# See all available tests:
+node _tests_/scripts/runIndividualTest.js --help
+```
+
+### Available Test Names
+
+**Phase 1:**
+
+- `setup`, `typescript`, `linting`
+- `tokenUtils`, `tokenStorage`, `authService`
+- `googleAuth`, `linkedinAuth`
+- `profileValidation`, `profileService`, `profileErrors`, `profileHook`
+- `authIntegration`, `profileScreens`
+
+**Phase 2:**
+
+- `cardCreation`, `qrCode`, `deepLink`, `preview`
+- `sharing`, `wallet`, `integration`
+
+**Special:**
+
+- `phase1` - All Phase 1 tests
+- `phase2` - All Phase 2 tests
+- `all` - Both phases sequentially
+
+## 🗂️ Test Structure
 
 ```
 _tests_/
-├── setup.js                    # Jest setup and mocks
-├── integration/                # Integration tests (3 files)
-│   ├── App.test.tsx            # Main app component testing
-│   ├── android-build.test.ts   # Android project validation
-│   └── ios-build.test.ts       # iOS project validation
-└── setup/                      # Setup validation tests (3 files)
-    ├── linting.test.ts         # Code quality and ESLint validation
-    ├── project-setup.test.ts   # Dependencies and file structure
-    └── typescript.test.ts      # TypeScript configuration validation
+├── setup/                       # Project setup validation
+│   ├── project-setup.test.ts    # Project configuration and dependencies
+│   ├── typescript.test.ts       # TypeScript configuration
+│   └── linting.test.ts          # Code quality and linting
+├── unit/
+│   ├── auth/                    # Authentication unit tests
+│   │   └── tokenUtils.test.ts   # JWT token utilities
+│   ├── profile/                 # Profile management tests
+│   │   ├── profileValidation.test.ts    # Profile data validation
+│   │   ├── profileService.test.ts       # Profile CRUD operations
+│   │   ├── profileErrorHandling.test.ts # Error handling
+│   │   └── useProfile.test.ts           # React hook tests
+│   ├── businessCard/            # Business card unit tests
+│   │   ├── cardCreation.test.ts         # Card creation with all field types
+│   │   ├── qrCodeGeneration.test.ts     # QR code generation and scanning
+│   │   ├── deepLinking.test.ts          # Deep link handling
+│   │   ├── cardPreview.test.tsx         # Card preview rendering
+│   │   ├── sharing.test.ts              # Share functionality (iOS/Android)
+│   │   └── walletIntegration.test.ts    # Wallet integration
+│   ├── authService.test.ts      # Core authentication service
+│   ├── googleAuthService.test.ts # Google OAuth integration
+│   ├── linkedinAuthService.test.ts # LinkedIn OAuth integration
+│   └── tokenStorage.test.ts     # Secure token storage
+├── integration/                 # Integration tests
+│   ├── auth.integration.test.ts # Authentication workflows
+│   ├── businessCard.integration.test.ts # Business card workflows
+│   └── profile/
+│       └── profileScreens.test.tsx # Profile UI integration
+└── scripts/                     # Test runners
+    ├── runPhase1Tests.js        # Complete Phase 1 test suite
+    ├── runPhase2Tests.js        # Complete Phase 2 test suite
+    └── runIndividualTest.js     # Individual/combined test runner
 ```
 
 ## ▶️ Running Tests

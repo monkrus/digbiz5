@@ -1,6 +1,6 @@
 /**
  * Profile Types and Interfaces
- * 
+ *
  * This file contains all TypeScript types and interfaces related to user profiles,
  * including profile data models, form validation, and API response types.
  */
@@ -85,7 +85,9 @@ export interface ProfileValidationErrors {
   bio?: string;
   email?: string;
   phone?: string;
+  location?: string;
   website?: string;
+  skills?: string;
   socialLinks?: {
     linkedin?: string;
     twitter?: string;
@@ -198,7 +200,12 @@ export interface ProfileCompletionStatus {
 // Profile activity
 export interface ProfileActivity {
   id: string;
-  type: 'profile_update' | 'photo_update' | 'skill_added' | 'experience_added' | 'education_added';
+  type:
+    | 'profile_update'
+    | 'photo_update'
+    | 'skill_added'
+    | 'experience_added'
+    | 'education_added';
   description: string;
   timestamp: string;
   metadata?: Record<string, any>;
@@ -209,7 +216,10 @@ export interface ProfileConnectionRequest {
   id: string;
   fromUserId: string;
   toUserId: string;
-  fromProfile: Pick<UserProfile, 'id' | 'name' | 'title' | 'company' | 'profilePhoto'>;
+  fromProfile: Pick<
+    UserProfile,
+    'id' | 'name' | 'title' | 'company' | 'profilePhoto'
+  >;
   status: 'pending' | 'accepted' | 'rejected';
   message: string | null;
   createdAt: string;
@@ -221,7 +231,10 @@ export interface ProfileView {
   id: string;
   profileId: string;
   viewerUserId: string | null; // null for anonymous views
-  viewerProfile?: Pick<UserProfile, 'id' | 'name' | 'title' | 'company' | 'profilePhoto'>;
+  viewerProfile?: Pick<
+    UserProfile,
+    'id' | 'name' | 'title' | 'company' | 'profilePhoto'
+  >;
   timestamp: string;
   metadata?: {
     source?: string;

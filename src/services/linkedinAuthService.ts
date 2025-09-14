@@ -111,7 +111,7 @@ export class LinkedInAuthService {
         throw new Error(`Token exchange failed: ${errorData}`);
       }
 
-      const tokenData = await response.json();
+      const tokenData = (await response.json()) as { access_token: string };
       return tokenData.access_token;
     } catch (error) {
       console.error('LinkedIn token exchange failed:', error);
@@ -135,7 +135,7 @@ export class LinkedInAuthService {
         throw new Error(`Profile fetch failed: ${response.statusText}`);
       }
 
-      return await response.json();
+      return (await response.json()) as LinkedInProfile;
     } catch (error) {
       console.error('LinkedIn profile fetch failed:', error);
       throw new Error('Failed to fetch user profile');
@@ -158,7 +158,7 @@ export class LinkedInAuthService {
         throw new Error(`Email fetch failed: ${response.statusText}`);
       }
 
-      const emailData: LinkedInEmailResponse = await response.json();
+      const emailData = (await response.json()) as LinkedInEmailResponse;
 
       if (!emailData.elements || emailData.elements.length === 0) {
         throw new Error('No email found in LinkedIn profile');

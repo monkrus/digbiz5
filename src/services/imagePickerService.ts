@@ -11,6 +11,15 @@ import {
   ImagePickerResponse,
   MediaType,
 } from 'react-native-image-picker';
+
+// Type for ImagePicker options
+interface ImagePickerOptions {
+  mediaType?: MediaType;
+  quality?: number;
+  maxWidth?: number;
+  maxHeight?: number;
+  includeBase64?: boolean;
+}
 import {
   openPicker,
   openCamera,
@@ -67,7 +76,6 @@ export class ImagePickerService {
       compressImageQuality: 0.8,
       compressVideoPreset: 'MediumQuality',
       includeExif: false,
-      cropperStatusBarColor: 'white',
       cropperToolbarColor: 'white',
       cropperActiveWidgetColor: '#3498db',
       cropperToolbarWidgetColor: '#3498db',

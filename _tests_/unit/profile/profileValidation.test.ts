@@ -1,6 +1,6 @@
 /**
  * Profile Validation Unit Tests
- * 
+ *
  * This test suite validates the profile form validation utilities including
  * field validation, form validation, completion calculation, and error handling.
  */
@@ -13,7 +13,11 @@ import {
   getProfileSuggestions,
   VALIDATION_RULES,
 } from '../../../src/utils/profileValidation';
-import { ProfileFormData, ProfileValidationErrors, SocialLinks } from '../../../src/types/profile';
+import {
+  ProfileFormData,
+  ProfileValidationErrors,
+  SocialLinks,
+} from '../../../src/types/profile';
 
 describe('Profile Validation', () => {
   const validProfileData: ProfileFormData = {
@@ -40,7 +44,9 @@ describe('Profile Validation', () => {
     describe('Name Validation', () => {
       it('should accept valid names', () => {
         expect(validateProfileField('name', 'John Doe')).toBeUndefined();
-        expect(validateProfileField('name', 'Mary Smith-Johnson')).toBeUndefined();
+        expect(
+          validateProfileField('name', 'Mary Smith-Johnson'),
+        ).toBeUndefined();
         expect(validateProfileField('name', "O'Connor")).toBeUndefined();
       });
 
@@ -51,31 +57,35 @@ describe('Profile Validation', () => {
 
       it('should reject names that are too short', () => {
         expect(validateProfileField('name', 'A')).toBe(
-          `Name must be at least ${VALIDATION_RULES.name.minLength} characters`
+          `Name must be at least ${VALIDATION_RULES.name.minLength} characters`,
         );
       });
 
       it('should reject names that are too long', () => {
         const longName = 'A'.repeat(VALIDATION_RULES.name.maxLength + 1);
         expect(validateProfileField('name', longName)).toBe(
-          `Name must be less than ${VALIDATION_RULES.name.maxLength} characters`
+          `Name must be less than ${VALIDATION_RULES.name.maxLength} characters`,
         );
       });
 
       it('should reject names with invalid characters', () => {
         expect(validateProfileField('name', 'John123')).toBe(
-          'Name can only contain letters, spaces, hyphens, and apostrophes'
+          'Name can only contain letters, spaces, hyphens, and apostrophes',
         );
         expect(validateProfileField('name', 'John@Doe')).toBe(
-          'Name can only contain letters, spaces, hyphens, and apostrophes'
+          'Name can only contain letters, spaces, hyphens, and apostrophes',
         );
       });
     });
 
     describe('Email Validation', () => {
       it('should accept valid emails', () => {
-        expect(validateProfileField('email', 'test@example.com')).toBeUndefined();
-        expect(validateProfileField('email', 'user.name+tag@example.co.uk')).toBeUndefined();
+        expect(
+          validateProfileField('email', 'test@example.com'),
+        ).toBeUndefined();
+        expect(
+          validateProfileField('email', 'user.name+tag@example.co.uk'),
+        ).toBeUndefined();
       });
 
       it('should reject empty emails', () => {
@@ -84,13 +94,13 @@ describe('Profile Validation', () => {
 
       it('should reject invalid email formats', () => {
         expect(validateProfileField('email', 'invalid-email')).toBe(
-          'Please enter a valid email address'
+          'Please enter a valid email address',
         );
         expect(validateProfileField('email', 'test@')).toBe(
-          'Please enter a valid email address'
+          'Please enter a valid email address',
         );
         expect(validateProfileField('email', '@example.com')).toBe(
-          'Please enter a valid email address'
+          'Please enter a valid email address',
         );
       });
     });
@@ -107,18 +117,22 @@ describe('Profile Validation', () => {
 
       it('should reject invalid phone formats', () => {
         expect(validateProfileField('phone', 'abc123')).toBe(
-          'Please enter a valid phone number'
+          'Please enter a valid phone number',
         );
         expect(validateProfileField('phone', '0123456789')).toBe(
-          'Please enter a valid phone number'
+          'Please enter a valid phone number',
         );
       });
     });
 
     describe('Website Validation', () => {
       it('should accept valid URLs', () => {
-        expect(validateProfileField('website', 'https://example.com')).toBeUndefined();
-        expect(validateProfileField('website', 'http://example.com')).toBeUndefined();
+        expect(
+          validateProfileField('website', 'https://example.com'),
+        ).toBeUndefined();
+        expect(
+          validateProfileField('website', 'http://example.com'),
+        ).toBeUndefined();
         expect(validateProfileField('website', 'example.com')).toBeUndefined();
       });
 
@@ -128,42 +142,50 @@ describe('Profile Validation', () => {
 
       it('should reject invalid URLs', () => {
         expect(validateProfileField('website', 'invalid-url')).toBe(
-          'Please enter a valid website URL'
+          'Please enter a valid website URL',
         );
         expect(validateProfileField('website', 'ftp://example')).toBe(
-          'Please enter a valid website URL'
+          'Please enter a valid website URL',
         );
       });
     });
 
     describe('Skills Validation', () => {
       it('should accept valid skill arrays', () => {
-        expect(validateProfileField('skills', ['JavaScript', 'React'])).toBeUndefined();
+        expect(
+          validateProfileField('skills', ['JavaScript', 'React']),
+        ).toBeUndefined();
       });
 
       it('should reject empty skill arrays', () => {
-        expect(validateProfileField('skills', [])).toBe('Please add at least 1 skill');
-        expect(validateProfileField('skills', null)).toBe('Please add at least one skill');
+        expect(validateProfileField('skills', [])).toBe(
+          'Please add at least 1 skill',
+        );
+        expect(validateProfileField('skills', null)).toBe(
+          'Please add at least one skill',
+        );
       });
 
       it('should reject too many skills', () => {
-        const tooManySkills = Array(VALIDATION_RULES.skills.maxItems + 1).fill('Skill');
+        const tooManySkills = Array(VALIDATION_RULES.skills.maxItems + 1).fill(
+          'Skill',
+        );
         expect(validateProfileField('skills', tooManySkills)).toBe(
-          `You can add up to ${VALIDATION_RULES.skills.maxItems} skills`
+          `You can add up to ${VALIDATION_RULES.skills.maxItems} skills`,
         );
       });
 
       it('should reject skills that are too long', () => {
         const longSkill = 'A'.repeat(VALIDATION_RULES.skills.maxLength + 1);
         expect(validateProfileField('skills', [longSkill])).toBe(
-          `Each skill must be between 1 and ${VALIDATION_RULES.skills.maxLength} characters`
+          `Each skill must be between 1 and ${VALIDATION_RULES.skills.maxLength} characters`,
         );
       });
 
       it('should reject duplicate skills', () => {
-        expect(validateProfileField('skills', ['JavaScript', 'javascript'])).toBe(
-          'Please remove duplicate skills'
-        );
+        expect(
+          validateProfileField('skills', ['JavaScript', 'javascript']),
+        ).toBe('Please remove duplicate skills');
       });
     });
 
@@ -176,7 +198,9 @@ describe('Profile Validation', () => {
           instagram: null,
           facebook: null,
         };
-        expect(validateProfileField('socialLinks', validSocialLinks)).toBeUndefined();
+        expect(
+          validateProfileField('socialLinks', validSocialLinks),
+        ).toBeUndefined();
       });
 
       it('should reject invalid social links', () => {
@@ -188,7 +212,7 @@ describe('Profile Validation', () => {
           facebook: null,
         };
         expect(validateProfileField('socialLinks', invalidSocialLinks)).toBe(
-          'Please check your social media links'
+          'Please check your social media links',
         );
       });
     });
@@ -207,7 +231,7 @@ describe('Profile Validation', () => {
         skills: [],
       };
       const errors = validateProfileForm(invalidData);
-      
+
       expect(errors.name).toBeDefined();
       expect(errors.email).toBeDefined();
       expect(errors.skills).toBeDefined();
@@ -219,7 +243,7 @@ describe('Profile Validation', () => {
         phone: '+1234567890',
       };
       const errors = validateProfileForm(incompleteData);
-      
+
       expect(errors.name).toBe('Name is required');
       expect(errors.title).toBe('Title is required');
       expect(errors.company).toBe('Company is required');
@@ -243,7 +267,7 @@ describe('Profile Validation', () => {
         },
       };
       const errors = validateProfileForm(dataWithEmptyOptionals);
-      
+
       expect(errors.bio).toBeUndefined();
       expect(errors.phone).toBeUndefined();
       expect(errors.location).toBeUndefined();
@@ -335,7 +359,7 @@ describe('Profile Validation', () => {
       };
       const suggestions = getProfileSuggestions(dataWithShortBio);
       expect(suggestions).toContain(
-        'Add a detailed bio to help others understand your background'
+        'Add a detailed bio to help others understand your background',
       );
     });
 
@@ -347,9 +371,13 @@ describe('Profile Validation', () => {
         website: '',
       };
       const suggestions = getProfileSuggestions(dataWithoutContact);
-      
-      expect(suggestions).toContain('Add your phone number to help people contact you');
-      expect(suggestions).toContain('Add your location to connect with local professionals');
+
+      expect(suggestions).toContain(
+        'Add your phone number to help people contact you',
+      );
+      expect(suggestions).toContain(
+        'Add your location to connect with local professionals',
+      );
       expect(suggestions).toContain('Add your website or portfolio link');
     });
 
@@ -359,7 +387,9 @@ describe('Profile Validation', () => {
         skills: ['JavaScript'],
       };
       const suggestions = getProfileSuggestions(dataWithFewSkills);
-      expect(suggestions).toContain('Add more skills to showcase your expertise');
+      expect(suggestions).toContain(
+        'Add more skills to showcase your expertise',
+      );
     });
 
     it('should suggest adding social links', () => {
@@ -374,7 +404,9 @@ describe('Profile Validation', () => {
         },
       };
       const suggestions = getProfileSuggestions(dataWithoutSocial);
-      expect(suggestions).toContain('Add social media links to expand your network');
+      expect(suggestions).toContain(
+        'Add social media links to expand your network',
+      );
     });
 
     it('should return empty suggestions for complete profile', () => {
@@ -382,8 +414,6 @@ describe('Profile Validation', () => {
       expect(suggestions).toHaveLength(0);
     });
   });
-
-
 
   describe('Edge Cases', () => {
     it('should handle null and undefined values', () => {
@@ -395,7 +425,9 @@ describe('Profile Validation', () => {
 
     it('should trim whitespace before validation', () => {
       expect(validateProfileField('name', '  John Doe  ')).toBeUndefined();
-      expect(validateProfileField('email', '  test@example.com  ')).toBeUndefined();
+      expect(
+        validateProfileField('email', '  test@example.com  '),
+      ).toBeUndefined();
     });
 
     it('should handle boolean fields', () => {
@@ -404,8 +436,12 @@ describe('Profile Validation', () => {
     });
 
     it('should handle array fields', () => {
-      expect(validateProfileField('skills', ['JavaScript', 'React'])).toBeUndefined();
-      expect(validateProfileField('skills', [])).toBe('Please add at least 1 skill');
+      expect(
+        validateProfileField('skills', ['JavaScript', 'React']),
+      ).toBeUndefined();
+      expect(validateProfileField('skills', [])).toBe(
+        'Please add at least 1 skill',
+      );
     });
   });
 });

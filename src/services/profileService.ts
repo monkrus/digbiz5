@@ -1,6 +1,6 @@
 /**
  * Profile Service
- * 
+ *
  * This service handles all profile-related API operations including CRUD operations,
  * photo uploads, search functionality, and profile analytics.
  */
@@ -33,38 +33,40 @@ class ProfileAPIClient {
     this.baseURL = `${AppConfig.apiUrl}/api/profiles`;
     this.defaultHeaders = {
       'Content-Type': 'application/json',
-      'Accept': 'application/json',
+      Accept: 'application/json',
     };
   }
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
-    
+
     const config: RequestInit = {
       ...options,
       headers: {
         ...this.defaultHeaders,
         ...options.headers,
       },
-      timeout: AppConfig.apiTimeout,
     };
 
     try {
       const response = await fetch(url, config);
-      
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = (await response.json().catch(() => ({}))) as {
+          message?: string;
+          error?: string;
+        };
         throw new Error(
-          errorData.message || 
-          errorData.error || 
-          `HTTP ${response.status}: ${response.statusText}`
+          errorData.message ||
+            errorData.error ||
+            `HTTP ${response.status}: ${response.statusText}`,
         );
       }
 
-      return await response.json();
+      return (await response.json()) as T;
     } catch (error) {
       console.error(`Profile API request failed: ${endpoint}`, error);
       throw error;
@@ -76,9 +78,9 @@ class ProfileAPIClient {
   }
 
   async post<T>(
-    endpoint: string, 
-    body?: any, 
-    headers?: Record<string, string>
+    endpoint: string,
+    body?: any,
+    headers?: Record<string, string>,
   ): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
@@ -88,9 +90,9 @@ class ProfileAPIClient {
   }
 
   async patch<T>(
-    endpoint: string, 
-    body?: any, 
-    headers?: Record<string, string>
+    endpoint: string,
+    body?: any,
+    headers?: Record<string, string>,
   ): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PATCH',
@@ -99,26 +101,50 @@ class ProfileAPIClient {
     });
   }
 
-  async delete<T>(endpoint: string, headers?: Record<string, string>): Promise<T> {
+  async delete<T>(
+    endpoint: string,
+    headers?: Record<string, string>,
+  ): Promise<T> {
     return this.request<T>(endpoint, { method: 'DELETE', headers });
   }
 
   async uploadFile<T>(
     endpoint: string,
     formData: FormData,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<T> {
+    const url = `${this.baseURL}${endpoint}`;
+
     const uploadHeaders = {
+      Accept: this.defaultHeaders.Accept,
+      ...(this.defaultHeaders.Authorization && {
+        Authorization: this.defaultHeaders.Authorization,
+      }),
       ...headers,
       // Don't set Content-Type for FormData - let the browser set it
     };
-    delete uploadHeaders['Content-Type'];
 
-    return this.request<T>(endpoint, {
+    const config: RequestInit = {
       method: 'POST',
-      body: formData,
+      body: formData as any, // FormData typing issue in React Native
       headers: uploadHeaders,
-    });
+    };
+
+    try {
+      const response = await fetch(url, config);
+
+      if (!response.ok) {
+        const errorData = (await response.json().catch(() => ({}))) as {
+          message?: string;
+        };
+        throw new Error(errorData.message || `HTTP ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error('API request failed:', error);
+      throw error;
+    }
   }
 
   setAuthToken(token: string): void {
@@ -177,7 +203,7 @@ export class ProfileService {
     } catch (error) {
       console.error('Create profile failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to create profile'
+        error instanceof Error ? error.message : 'Failed to create profile',
       );
     }
   }
@@ -186,12 +212,12 @@ export class ProfileService {
    * Update an existing profile
    */
   async updateProfile(
-    profileId: string, 
-    updateData: ProfileUpdateData
+    profileId: string,
+    updateData: ProfileUpdateData,
   ): Promise<ProfileResponse> {
     try {
       const sanitizedData: ProfileUpdateData = {};
-      
+
       // Only include fields that are provided
       if (updateData.name !== undefined) {
         sanitizedData.name = updateData.name.trim();
@@ -203,19 +229,19 @@ export class ProfileService {
         sanitizedData.company = updateData.company.trim();
       }
       if (updateData.bio !== undefined) {
-        sanitizedData.bio = updateData.bio?.trim() || null;
+        sanitizedData.bio = updateData.bio?.trim() || undefined;
       }
       if (updateData.email !== undefined) {
         sanitizedData.email = updateData.email.toLowerCase().trim();
       }
       if (updateData.phone !== undefined) {
-        sanitizedData.phone = updateData.phone?.trim() || null;
+        sanitizedData.phone = updateData.phone?.trim() || undefined;
       }
       if (updateData.location !== undefined) {
-        sanitizedData.location = updateData.location?.trim() || null;
+        sanitizedData.location = updateData.location?.trim() || undefined;
       }
       if (updateData.website !== undefined) {
-        sanitizedData.website = updateData.website?.trim() || null;
+        sanitizedData.website = updateData.website?.trim() || undefined;
       }
       if (updateData.socialLinks !== undefined) {
         sanitizedData.socialLinks = updateData.socialLinks;
@@ -228,15 +254,15 @@ export class ProfileService {
       }
 
       const response = await this.apiClient.patch<ProfileResponse>(
-        `/${profileId}`, 
-        sanitizedData
+        `/${profileId}`,
+        sanitizedData,
       );
 
       return response;
     } catch (error) {
       console.error('Update profile failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to update profile'
+        error instanceof Error ? error.message : 'Failed to update profile',
       );
     }
   }
@@ -246,12 +272,14 @@ export class ProfileService {
    */
   async getProfile(profileId: string): Promise<ProfileResponse> {
     try {
-      const response = await this.apiClient.get<ProfileResponse>(`/${profileId}`);
+      const response = await this.apiClient.get<ProfileResponse>(
+        `/${profileId}`,
+      );
       return response;
     } catch (error) {
       console.error('Get profile failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to fetch profile'
+        error instanceof Error ? error.message : 'Failed to fetch profile',
       );
     }
   }
@@ -266,7 +294,9 @@ export class ProfileService {
     } catch (error) {
       console.error('Get current profile failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to fetch current profile'
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch current profile',
       );
     }
   }
@@ -274,16 +304,19 @@ export class ProfileService {
   /**
    * Delete a profile
    */
-  async deleteProfile(profileId: string): Promise<{ success: boolean; message: string }> {
+  async deleteProfile(
+    profileId: string,
+  ): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await this.apiClient.delete<{ success: boolean; message: string }>(
-        `/${profileId}`
-      );
+      const response = await this.apiClient.delete<{
+        success: boolean;
+        message: string;
+      }>(`/${profileId}`);
       return response;
     } catch (error) {
       console.error('Delete profile failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to delete profile'
+        error instanceof Error ? error.message : 'Failed to delete profile',
       );
     }
   }
@@ -292,8 +325,8 @@ export class ProfileService {
    * Upload profile photo
    */
   async uploadProfilePhoto(
-    profileId: string, 
-    photo: ProfilePhotoData
+    profileId: string,
+    photo: ProfilePhotoData,
   ): Promise<ProfilePhotoUploadResponse> {
     try {
       const formData = new FormData();
@@ -303,16 +336,19 @@ export class ProfileService {
         name: photo.name,
       } as any);
 
-      const response = await this.apiClient.uploadFile<ProfilePhotoUploadResponse>(
-        `/${profileId}/photo`,
-        formData
-      );
+      const response =
+        await this.apiClient.uploadFile<ProfilePhotoUploadResponse>(
+          `/${profileId}/photo`,
+          formData,
+        );
 
       return response;
     } catch (error) {
       console.error('Upload profile photo failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to upload profile photo'
+        error instanceof Error
+          ? error.message
+          : 'Failed to upload profile photo',
       );
     }
   }
@@ -320,16 +356,21 @@ export class ProfileService {
   /**
    * Delete profile photo
    */
-  async deleteProfilePhoto(profileId: string): Promise<{ success: boolean; message: string }> {
+  async deleteProfilePhoto(
+    profileId: string,
+  ): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await this.apiClient.delete<{ success: boolean; message: string }>(
-        `/${profileId}/photo`
-      );
+      const response = await this.apiClient.delete<{
+        success: boolean;
+        message: string;
+      }>(`/${profileId}/photo`);
       return response;
     } catch (error) {
       console.error('Delete profile photo failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to delete profile photo'
+        error instanceof Error
+          ? error.message
+          : 'Failed to delete profile photo',
       );
     }
   }
@@ -337,16 +378,18 @@ export class ProfileService {
   /**
    * Search profiles
    */
-  async searchProfiles(params: ProfileSearchParams): Promise<ProfileListResponse> {
+  async searchProfiles(
+    params: ProfileSearchParams,
+  ): Promise<ProfileListResponse> {
     try {
       const searchParams = new URLSearchParams();
-      
+
       if (params.query) searchParams.append('query', params.query);
       if (params.page) searchParams.append('page', params.page.toString());
       if (params.limit) searchParams.append('limit', params.limit.toString());
       if (params.sortBy) searchParams.append('sortBy', params.sortBy);
       if (params.sortOrder) searchParams.append('sortOrder', params.sortOrder);
-      
+
       // Add filters
       if (params.filters) {
         Object.entries(params.filters).forEach(([key, value]) => {
@@ -362,13 +405,13 @@ export class ProfileService {
 
       const queryString = searchParams.toString();
       const endpoint = queryString ? `/search?${queryString}` : '/search';
-      
+
       const response = await this.apiClient.get<ProfileListResponse>(endpoint);
       return response;
     } catch (error) {
       console.error('Search profiles failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to search profiles'
+        error instanceof Error ? error.message : 'Failed to search profiles',
       );
     }
   }
@@ -376,16 +419,20 @@ export class ProfileService {
   /**
    * Get profile suggestions
    */
-  async getProfileSuggestions(limit: number = 10): Promise<ProfileListResponse> {
+  async getProfileSuggestions(
+    limit: number = 10,
+  ): Promise<ProfileListResponse> {
     try {
       const response = await this.apiClient.get<ProfileListResponse>(
-        `/suggestions?limit=${limit}`
+        `/suggestions?limit=${limit}`,
       );
       return response;
     } catch (error) {
       console.error('Get profile suggestions failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to fetch profile suggestions'
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch profile suggestions',
       );
     }
   }
@@ -400,7 +447,9 @@ export class ProfileService {
     } catch (error) {
       console.error('Get profile stats failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to fetch profile statistics'
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch profile statistics',
       );
     }
   }
@@ -408,16 +457,20 @@ export class ProfileService {
   /**
    * Get profile completion status
    */
-  async getProfileCompletion(profileId: string): Promise<ProfileCompletionStatus> {
+  async getProfileCompletion(
+    profileId: string,
+  ): Promise<ProfileCompletionStatus> {
     try {
       const response = await this.apiClient.get<ProfileCompletionStatus>(
-        `/${profileId}/completion`
+        `/${profileId}/completion`,
       );
       return response;
     } catch (error) {
       console.error('Get profile completion failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to fetch profile completion'
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch profile completion',
       );
     }
   }
@@ -426,18 +479,20 @@ export class ProfileService {
    * Get profile activities
    */
   async getProfileActivities(
-    profileId: string, 
-    limit: number = 20
+    profileId: string,
+    limit: number = 20,
   ): Promise<ProfileActivity[]> {
     try {
       const response = await this.apiClient.get<ProfileActivity[]>(
-        `/${profileId}/activities?limit=${limit}`
+        `/${profileId}/activities?limit=${limit}`,
       );
       return response;
     } catch (error) {
       console.error('Get profile activities failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to fetch profile activities'
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch profile activities',
       );
     }
   }
@@ -446,18 +501,20 @@ export class ProfileService {
    * Get profile views
    */
   async getProfileViews(
-    profileId: string, 
-    limit: number = 50
+    profileId: string,
+    limit: number = 50,
   ): Promise<ProfileView[]> {
     try {
       const response = await this.apiClient.get<ProfileView[]>(
-        `/${profileId}/views?limit=${limit}`
+        `/${profileId}/views?limit=${limit}`,
       );
       return response;
     } catch (error) {
       console.error('Get profile views failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to fetch profile views'
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch profile views',
       );
     }
   }
@@ -468,7 +525,7 @@ export class ProfileService {
   async recordProfileView(profileId: string): Promise<{ success: boolean }> {
     try {
       const response = await this.apiClient.post<{ success: boolean }>(
-        `/${profileId}/views`
+        `/${profileId}/views`,
       );
       return response;
     } catch (error) {
@@ -484,13 +541,15 @@ export class ProfileService {
   async getConnectionRequests(): Promise<ProfileConnectionRequest[]> {
     try {
       const response = await this.apiClient.get<ProfileConnectionRequest[]>(
-        '/connections/requests'
+        '/connections/requests',
       );
       return response;
     } catch (error) {
       console.error('Get connection requests failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to fetch connection requests'
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch connection requests',
       );
     }
   }
@@ -499,19 +558,24 @@ export class ProfileService {
    * Send connection request
    */
   async sendConnectionRequest(
-    profileId: string, 
-    message?: string
+    profileId: string,
+    message?: string,
   ): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await this.apiClient.post<{ success: boolean; message: string }>(
-        `/connections/request`,
-        { profileId, message: message?.trim() || null }
-      );
+      const response = await this.apiClient.post<{
+        success: boolean;
+        message: string;
+      }>(`/connections/request`, {
+        profileId,
+        message: message?.trim() || null,
+      });
       return response;
     } catch (error) {
       console.error('Send connection request failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to send connection request'
+        error instanceof Error
+          ? error.message
+          : 'Failed to send connection request',
       );
     }
   }
@@ -520,19 +584,23 @@ export class ProfileService {
    * Respond to connection request
    */
   async respondToConnectionRequest(
-    requestId: string, 
-    accept: boolean
+    requestId: string,
+    accept: boolean,
   ): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await this.apiClient.patch<{ success: boolean; message: string }>(
-        `/connections/requests/${requestId}`,
-        { status: accept ? 'accepted' : 'rejected' }
-      );
+      const response = await this.apiClient.patch<{
+        success: boolean;
+        message: string;
+      }>(`/connections/requests/${requestId}`, {
+        status: accept ? 'accepted' : 'rejected',
+      });
       return response;
     } catch (error) {
       console.error('Respond to connection request failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to respond to connection request'
+        error instanceof Error
+          ? error.message
+          : 'Failed to respond to connection request',
       );
     }
   }
@@ -543,13 +611,15 @@ export class ProfileService {
   async getProfileSettings(profileId: string): Promise<ProfileSettings> {
     try {
       const response = await this.apiClient.get<ProfileSettings>(
-        `/${profileId}/settings`
+        `/${profileId}/settings`,
       );
       return response;
     } catch (error) {
       console.error('Get profile settings failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to fetch profile settings'
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch profile settings',
       );
     }
   }
@@ -558,19 +628,21 @@ export class ProfileService {
    * Update profile settings
    */
   async updateProfileSettings(
-    profileId: string, 
-    settings: Partial<ProfileSettings>
+    profileId: string,
+    settings: Partial<ProfileSettings>,
   ): Promise<ProfileSettings> {
     try {
       const response = await this.apiClient.patch<ProfileSettings>(
         `/${profileId}/settings`,
-        settings
+        settings,
       );
       return response;
     } catch (error) {
       console.error('Update profile settings failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to update profile settings'
+        error instanceof Error
+          ? error.message
+          : 'Failed to update profile settings',
       );
     }
   }
@@ -580,10 +652,13 @@ export class ProfileService {
    */
   async exportProfileData(profileId: string): Promise<Blob> {
     try {
-      const response = await fetch(`${this.baseURL}/${profileId}/export`, {
-        method: 'GET',
-        headers: (this.apiClient as any).defaultHeaders,
-      });
+      const response = await fetch(
+        `${(this.apiClient as any).baseURL}/${profileId}/export`,
+        {
+          method: 'GET',
+          headers: (this.apiClient as any).defaultHeaders,
+        },
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -593,7 +668,9 @@ export class ProfileService {
     } catch (error) {
       console.error('Export profile data failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to export profile data'
+        error instanceof Error
+          ? error.message
+          : 'Failed to export profile data',
       );
     }
   }
@@ -614,7 +691,9 @@ export class ProfileService {
     } catch (error) {
       console.error('Validate profile data failed:', error);
       throw new Error(
-        error instanceof Error ? error.message : 'Failed to validate profile data'
+        error instanceof Error
+          ? error.message
+          : 'Failed to validate profile data',
       );
     }
   }

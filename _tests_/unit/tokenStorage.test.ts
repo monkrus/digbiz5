@@ -10,16 +10,9 @@
 
 import { JWTTokens } from '../../src/types/auth';
 
-// Mock dependencies
-jest.mock('react-native-mmkv', () => ({
-  MMKV: jest.fn().mockImplementation(() => ({
-    set: jest.fn(),
-    getString: jest.fn(),
-    delete: jest.fn(),
-    getAllKeys: jest.fn().mockReturnValue([]),
-    clearAll: jest.fn(),
-  })),
-}));
+// Clear the mock from setupTests to test actual implementation
+jest.unmock('../../src/services/tokenStorage');
+jest.unmock('../../src/utils/tokenUtils');
 
 jest.mock('crypto-js', () => ({
   AES: {
@@ -39,7 +32,7 @@ import { MMKV } from 'react-native-mmkv';
 import CryptoJS from 'crypto-js';
 import {
   tokenStorage,
-  TokenStorageService,
+  SecureTokenStorage,
 } from '../../src/services/tokenStorage';
 import {
   validateTokens,
@@ -47,7 +40,7 @@ import {
 } from '../../src/utils/tokenUtils';
 
 describe('TokenStorageService', () => {
-  let storage: TokenStorageService;
+  let storage: SecureTokenStorage;
   let mockMMKV: jest.Mocked<MMKV>;
   const mockValidateTokens = validateTokens as jest.MockedFunction<
     typeof validateTokens
@@ -75,7 +68,7 @@ describe('TokenStorageService', () => {
     } as any;
 
     (MMKV as jest.Mock).mockReturnValue(mockMMKV);
-    storage = new TokenStorageService();
+    storage = new SecureTokenStorage();
   });
 
   describe('Initialization', () => {

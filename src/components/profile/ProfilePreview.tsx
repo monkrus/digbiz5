@@ -1,6 +1,6 @@
 /**
  * Profile Preview Component
- * 
+ *
  * This component displays a user's profile in a clean, readable format
  * with different views (card, detailed, compact) and interactive elements.
  */
@@ -56,7 +56,7 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({
 }) => {
   const [imageError, setImageError] = useState(false);
   const [expandedBio, setExpandedBio] = useState(false);
-  
+
   const completionPercentage = getProfileCompletionPercentage({
     name: profile.name,
     title: profile.title,
@@ -82,8 +82,8 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({
 
   const handleWebsitePress = useCallback(() => {
     if (profile.website) {
-      const validUrl = profile.website.startsWith('http') 
-        ? profile.website 
+      const validUrl = profile.website.startsWith('http')
+        ? profile.website
         : `https://${profile.website}`;
       Linking.openURL(validUrl).catch(() => {
         Alert.alert('Error', 'Unable to open website');
@@ -117,23 +117,34 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({
     } catch (error) {
       console.error('Share error:', error);
     }
-    
+
     if (onShare) onShare();
   }, [profile, onShare]);
 
   const renderProfileImage = () => {
-    const imageSize = variant === 'compact' ? 50 : variant === 'header' ? 80 : 100;
-    
+    const imageSize =
+      variant === 'compact' ? 50 : variant === 'header' ? 80 : 100;
+
     return (
-      <View style={[styles.imageContainer, { width: imageSize, height: imageSize }]}>
+      <View
+        style={[styles.imageContainer, { width: imageSize, height: imageSize }]}
+      >
         {profile.profilePhoto && !imageError ? (
           <Image
             source={{ uri: profile.profilePhoto }}
-            style={[styles.profileImage, { width: imageSize, height: imageSize }]}
+            style={[
+              styles.profileImage,
+              { width: imageSize, height: imageSize },
+            ]}
             onError={() => setImageError(true)}
           />
         ) : (
-          <View style={[styles.placeholderImage, { width: imageSize, height: imageSize }]}>
+          <View
+            style={[
+              styles.placeholderImage,
+              { width: imageSize, height: imageSize },
+            ]}
+          >
             <Icon name="person" size={imageSize * 0.6} color="#9CA3AF" />
           </View>
         )}
@@ -153,18 +164,23 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({
           {profile.name}
         </Text>
         {profile.isVerified && variant !== 'compact' && (
-          <Icon name="verified" size={18} color="#3B82F6" style={styles.verifiedIcon} />
+          <Icon
+            name="verified"
+            size={18}
+            color="#3B82F6"
+            style={styles.verifiedIcon}
+          />
         )}
       </View>
-      
+
       <Text style={styles.title} numberOfLines={variant === 'compact' ? 1 : 2}>
         {profile.title}
       </Text>
-      
+
       <Text style={styles.company} numberOfLines={1}>
         {profile.company}
       </Text>
-      
+
       {profile.location && variant !== 'compact' && (
         <View style={styles.locationContainer}>
           <Icon name="location-on" size={14} color="#6B7280" />
@@ -178,7 +194,9 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({
     if (!profile.bio || variant === 'compact') return null;
 
     const shouldTruncate = profile.bio.length > 150 && !expandedBio;
-    const displayBio = shouldTruncate ? `${profile.bio.substring(0, 150)}...` : profile.bio;
+    const displayBio = shouldTruncate
+      ? `${profile.bio.substring(0, 150)}...`
+      : profile.bio;
 
     return (
       <View style={styles.bioContainer}>
@@ -195,9 +213,11 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({
   };
 
   const renderSkills = () => {
-    if (!showSkills || !profile.skills.length || variant === 'compact') return null;
+    if (!showSkills || !profile.skills.length || variant === 'compact')
+      return null;
 
-    const displaySkills = variant === 'card' ? profile.skills.slice(0, 6) : profile.skills;
+    const displaySkills =
+      variant === 'card' ? profile.skills.slice(0, 6) : profile.skills;
 
     return (
       <View style={styles.skillsContainer}>
@@ -241,7 +261,10 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({
             </TouchableOpacity>
           ))}
           {profile.website && (
-            <TouchableOpacity style={styles.socialLink} onPress={handleWebsitePress}>
+            <TouchableOpacity
+              style={styles.socialLink}
+              onPress={handleWebsitePress}
+            >
               <Icon name="language" size={20} color="#6B7280" />
             </TouchableOpacity>
           )}
@@ -251,19 +274,26 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({
   };
 
   const renderContactInfo = () => {
-    if (!showContact || variant === 'compact' || variant === 'card') return null;
+    if (!showContact || variant === 'compact' || variant === 'card')
+      return null;
 
     return (
       <View style={styles.contactContainer}>
         <Text style={styles.sectionTitle}>Contact</Text>
         {profile.email && (
-          <TouchableOpacity style={styles.contactItem} onPress={handleEmailPress}>
+          <TouchableOpacity
+            style={styles.contactItem}
+            onPress={handleEmailPress}
+          >
             <Icon name="email" size={18} color="#6B7280" />
             <Text style={styles.contactText}>{profile.email}</Text>
           </TouchableOpacity>
         )}
         {profile.phone && (
-          <TouchableOpacity style={styles.contactItem} onPress={handlePhonePress}>
+          <TouchableOpacity
+            style={styles.contactItem}
+            onPress={handlePhonePress}
+          >
             <Icon name="phone" size={18} color="#6B7280" />
             <Text style={styles.contactText}>{profile.phone}</Text>
           </TouchableOpacity>
@@ -279,14 +309,16 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({
       <View style={styles.completionContainer}>
         <View style={styles.completionHeader}>
           <Text style={styles.completionTitle}>Profile Completion</Text>
-          <Text style={styles.completionPercentage}>{completionPercentage}%</Text>
+          <Text style={styles.completionPercentage}>
+            {completionPercentage}%
+          </Text>
         </View>
         <View style={styles.completionBar}>
-          <View 
+          <View
             style={[
-              styles.completionProgress, 
-              { width: `${completionPercentage}%` }
-            ]} 
+              styles.completionProgress,
+              { width: `${completionPercentage}%` },
+            ]}
           />
         </View>
       </View>
@@ -305,9 +337,14 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({
           </TouchableOpacity>
         )}
         {!editable && onConnect && (
-          <TouchableOpacity style={[styles.actionButton, styles.primaryAction]} onPress={onConnect}>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.primaryAction]}
+            onPress={onConnect}
+          >
             <Icon name="person-add" size={18} color="#FFFFFF" />
-            <Text style={[styles.actionText, styles.primaryActionText]}>Connect</Text>
+            <Text style={[styles.actionText, styles.primaryActionText]}>
+              Connect
+            </Text>
           </TouchableOpacity>
         )}
         {onContact && (

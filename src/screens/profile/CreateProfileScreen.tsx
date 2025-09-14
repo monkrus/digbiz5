@@ -1,6 +1,6 @@
 /**
  * Create Profile Screen
- * 
+ *
  * This screen allows users to create their initial profile with form validation,
  * image upload, and step-by-step guidance.
  */
@@ -18,8 +18,15 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 
-import { ProfileFormData, ProfileValidationErrors, ProfilePhotoData } from '../../types/profile';
-import { validateProfileForm, getProfileCompletionPercentage } from '../../utils/profileValidation';
+import {
+  ProfileFormData,
+  ProfileValidationErrors,
+  ProfilePhotoData,
+} from '../../types/profile';
+import {
+  validateProfileForm,
+  getProfileCompletionPercentage,
+} from '../../utils/profileValidation';
 import { imagePickerService } from '../../services/imagePickerService';
 import { useProfile } from '../../hooks/useProfile';
 
@@ -69,8 +76,11 @@ const CreateProfileScreen: React.FC<CreateProfileScreenProps> = ({ route }) => {
     isPublic: true,
   });
 
-  const [profilePhoto, setProfilePhoto] = useState<ProfilePhotoData | null>(null);
-  const [validationErrors, setValidationErrors] = useState<ProfileValidationErrors>({});
+  const [profilePhoto, setProfilePhoto] = useState<ProfilePhotoData | null>(
+    null,
+  );
+  const [validationErrors, setValidationErrors] =
+    useState<ProfileValidationErrors>({});
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -93,12 +103,15 @@ const CreateProfileScreen: React.FC<CreateProfileScreenProps> = ({ route }) => {
     setValidationErrors(errors);
   }, [formData]);
 
-  const handleFormChange = useCallback((field: keyof ProfileFormData, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value,
-    }));
-  }, []);
+  const handleFormChange = useCallback(
+    (field: keyof ProfileFormData, value: any) => {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value,
+      }));
+    },
+    [],
+  );
 
   const handlePhotoSelect = useCallback(async () => {
     try {
@@ -136,7 +149,7 @@ const CreateProfileScreen: React.FC<CreateProfileScreenProps> = ({ route }) => {
           style: 'destructive',
           onPress: () => setProfilePhoto(null),
         },
-      ]
+      ],
     );
   }, []);
 
@@ -158,8 +171,8 @@ const CreateProfileScreen: React.FC<CreateProfileScreenProps> = ({ route }) => {
       return value && value.toString().trim().length > 0;
     });
 
-    const stepErrors = Object.keys(validationErrors).filter(field => 
-      requiredFields.includes(field as keyof ProfileFormData)
+    const stepErrors = Object.keys(validationErrors).filter(field =>
+      requiredFields.includes(field as keyof ProfileFormData),
     );
 
     return hasRequiredFields && stepErrors.length === 0;
@@ -167,7 +180,10 @@ const CreateProfileScreen: React.FC<CreateProfileScreenProps> = ({ route }) => {
 
   const handleNextStep = () => {
     if (!validateCurrentStep()) {
-      Alert.alert('Validation Error', 'Please complete all required fields correctly.');
+      Alert.alert(
+        'Validation Error',
+        'Please complete all required fields correctly.',
+      );
       return;
     }
 
@@ -192,7 +208,10 @@ const CreateProfileScreen: React.FC<CreateProfileScreenProps> = ({ route }) => {
       const errors = validateProfileForm(formData);
       if (Object.keys(errors).length > 0) {
         setValidationErrors(errors);
-        Alert.alert('Validation Error', 'Please fix all errors before submitting.');
+        Alert.alert(
+          'Validation Error',
+          'Please fix all errors before submitting.',
+        );
         return;
       }
 
@@ -203,7 +222,10 @@ const CreateProfileScreen: React.FC<CreateProfileScreenProps> = ({ route }) => {
         if (uploadResult.success) {
           profilePhotoUrl = uploadResult.photoUrl;
         } else {
-          Alert.alert('Upload Error', 'Failed to upload profile photo. Please try again.');
+          Alert.alert(
+            'Upload Error',
+            'Failed to upload profile photo. Please try again.',
+          );
           return;
         }
       }
@@ -215,7 +237,7 @@ const CreateProfileScreen: React.FC<CreateProfileScreenProps> = ({ route }) => {
       };
 
       const result = await createProfile(profileData);
-      
+
       if (result.success) {
         setShowSuccess(true);
         setTimeout(() => {
@@ -226,7 +248,10 @@ const CreateProfileScreen: React.FC<CreateProfileScreenProps> = ({ route }) => {
           }
         }, 2000);
       } else {
-        Alert.alert('Error', result.message || 'Failed to create profile. Please try again.');
+        Alert.alert(
+          'Error',
+          result.message || 'Failed to create profile. Please try again.',
+        );
       }
     } catch (error) {
       console.error('Profile creation error:', error);
@@ -246,13 +271,13 @@ const CreateProfileScreen: React.FC<CreateProfileScreenProps> = ({ route }) => {
           text: 'Skip',
           onPress: () => navigation.navigate('Home' as never),
         },
-      ]
+      ],
     );
   };
 
   const renderCurrentStep = () => {
     const step = formSteps[currentStep];
-    
+
     switch (step.component) {
       case 'basic':
         return (
@@ -292,7 +317,7 @@ const CreateProfileScreen: React.FC<CreateProfileScreenProps> = ({ route }) => {
           <ProfileSkillsForm
             skills={formData.skills}
             error={validationErrors.skills}
-            onSkillsChange={(skills) => handleFormChange('skills', skills)}
+            onSkillsChange={skills => handleFormChange('skills', skills)}
           />
         );
       default:
@@ -333,12 +358,7 @@ const CreateProfileScreen: React.FC<CreateProfileScreenProps> = ({ route }) => {
           height={4}
         />
 
-        {error && (
-          <ErrorMessage
-            message={error}
-            style={styles.errorMessage}
-          />
-        )}
+        {error && <ErrorMessage message={error} style={styles.errorMessage} />}
 
         <ScrollView
           ref={scrollViewRef}

@@ -9,7 +9,6 @@ import { JWTTokens, TokenValidation } from '../types/auth';
 
 /**
  * Decodes JWT token payload without verification
- * Used for extracting expiration time and other claims
  */
 export const decodeJWTPayload = (token: string): any | null => {
   try {
@@ -19,10 +18,22 @@ export const decodeJWTPayload = (token: string): any | null => {
     }
 
     const payload = parts[1];
-    const decoded = Buffer.from(payload, 'base64').toString('utf-8');
-    return JSON.parse(decoded);
+    const paddedPayload = payload + '='.repeat((4 - (payload.length % 4)) % 4);
+
+    // Use atob for base64 decoding in browser/React Native environment
+    if (typeof atob !== 'undefined') {
+      const decoded = atob(paddedPayload);
+      return JSON.parse(decoded);
+    }
+
+    // Fallback to Buffer for Node.js environment (testing)
+    if (typeof Buffer !== 'undefined') {
+      const decoded = Buffer.from(paddedPayload, 'base64').toString('utf-8');
+      return JSON.parse(decoded);
+    }
+
+    return null;
   } catch (error) {
-    console.warn('Failed to decode JWT token:', error);
     return null;
   }
 };
@@ -146,40 +157,6 @@ export const isRefreshTokenValid = (tokens: JWTTokens): boolean => {
   }
 
   return !isTokenExpired(tokens.refreshToken);
-};
-
-/**
- * Creates a token expiration timer
- */
-export const createTokenExpirationTimer = (
-  tokens: JWTTokens,
-  onExpire: () => void,
-): NodeJS.Timeout | null => {
-  const timeRemaining = getTokenTimeRemaining(tokens.accessToken);
-
-  if (timeRemaining <= 0) {
-    onExpire();
-    return null;
-  }
-
-  // Set timer for token expiration
-  return setTimeout(onExpire, timeRemaining * 1000);
-};
-
-/**
- * Creates a token refresh timer
- */
-export const createTokenRefreshTimer = (
-  tokens: JWTTokens,
-  onRefresh: () => void,
-): NodeJS.Timeout | null => {
-  const refreshTime = getOptimalRefreshTime(tokens);
-
-  if (refreshTime <= 0) {
-    return null;
-  }
-
-  return setTimeout(onRefresh, refreshTime * 1000);
 };
 
 /**

@@ -1,6 +1,6 @@
 /**
  * Edit Profile Screen
- * 
+ *
  * This screen allows users to edit their existing profile with real-time validation,
  * unsaved changes detection, and section-based editing.
  */
@@ -20,14 +20,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { isEqual } from 'lodash';
 
-import { 
-  UserProfile, 
-  ProfileFormData, 
-  ProfileValidationErrors, 
+import {
+  UserProfile,
+  ProfileFormData,
+  ProfileValidationErrors,
   ProfilePhotoData,
-  ProfileUpdateData 
+  ProfileUpdateData,
 } from '../../types/profile';
-import { validateProfileForm, getProfileCompletionPercentage } from '../../utils/profileValidation';
+import {
+  validateProfileForm,
+  getProfileCompletionPercentage,
+} from '../../utils/profileValidation';
 import { imagePickerService } from '../../services/imagePickerService';
 import { useProfile } from '../../hooks/useProfile';
 
@@ -55,7 +58,8 @@ interface EditProfileScreenProps {
 
 const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ route }) => {
   const navigation = useNavigation();
-  const { updateProfile, uploadProfilePhoto, loading, error, clearError } = useProfile();
+  const { updateProfile, uploadProfilePhoto, loading, error, clearError } =
+    useProfile();
   const scrollViewRef = useRef<ScrollView>(null);
 
   const { profile: initialProfile, section: initialSection } = route.params;
@@ -76,11 +80,16 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ route }) => {
   });
 
   const [originalFormData] = useState<ProfileFormData>(formData);
-  const [profilePhoto, setProfilePhoto] = useState<ProfilePhotoData | null>(null);
-  const [validationErrors, setValidationErrors] = useState<ProfileValidationErrors>({});
+  const [profilePhoto, setProfilePhoto] = useState<ProfilePhotoData | null>(
+    null,
+  );
+  const [validationErrors, setValidationErrors] =
+    useState<ProfileValidationErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+  const [expandedSections, setExpandedSections] = useState<
+    Record<string, boolean>
+  >({
     basic: initialSection === 'basic' || !initialSection,
     contact: initialSection === 'contact',
     social: initialSection === 'social',
@@ -88,9 +97,11 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ route }) => {
     privacy: initialSection === 'privacy',
   });
   const [showUnsavedChanges, setShowUnsavedChanges] = useState(false);
-  const [pendingNavigation, setPendingNavigation] = useState<() => void | null>(null);
+  const [pendingNavigation, setPendingNavigation] =
+    useState<() => void | null>(null);
 
-  const hasUnsavedChanges = !isEqual(formData, originalFormData) || profilePhoto !== null;
+  const hasUnsavedChanges =
+    !isEqual(formData, originalFormData) || profilePhoto !== null;
   const completionPercentage = getProfileCompletionPercentage(formData);
 
   useEffect(() => {
@@ -118,18 +129,24 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ route }) => {
         return false; // Allow default behavior
       };
 
-      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      const subscription = BackHandler.addEventListener(
+        'hardwareBackPress',
+        onBackPress,
+      );
       return () => subscription.remove();
-    }, [hasUnsavedChanges, handleBackPress])
+    }, [hasUnsavedChanges, handleBackPress]),
   );
 
-  const handleFormChange = useCallback((field: keyof ProfileFormData, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value,
-    }));
-    clearError(); // Clear any existing errors
-  }, [clearError]);
+  const handleFormChange = useCallback(
+    (field: keyof ProfileFormData, value: any) => {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value,
+      }));
+      clearError(); // Clear any existing errors
+    },
+    [clearError],
+  );
 
   const handlePhotoSelect = useCallback(async () => {
     try {
@@ -169,7 +186,7 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ route }) => {
             setProfilePhoto({ uri: '', type: '', name: '', size: 0 }); // Mark for deletion
           },
         },
-      ]
+      ],
     );
   }, []);
 
@@ -205,7 +222,10 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ route }) => {
           if (uploadResult.success) {
             profilePhotoUrl = uploadResult.photoUrl;
           } else {
-            Alert.alert('Upload Error', 'Failed to upload profile photo. Please try again.');
+            Alert.alert(
+              'Upload Error',
+              'Failed to upload profile photo. Please try again.',
+            );
             return;
           }
         }
@@ -219,20 +239,23 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ route }) => {
 
       // Update profile
       const result = await updateProfile(initialProfile.id, updateData);
-      
+
       if (result.success) {
         setShowSuccess(true);
         setProfilePhoto(null); // Reset photo state
-        
+
         // Update original form data
         const newOriginalData = { ...formData };
         Object.assign(originalFormData, newOriginalData);
-        
+
         setTimeout(() => {
           navigation.goBack();
         }, 1500);
       } else {
-        Alert.alert('Error', result.message || 'Failed to update profile. Please try again.');
+        Alert.alert(
+          'Error',
+          result.message || 'Failed to update profile. Please try again.',
+        );
       }
     } catch (error) {
       console.error('Profile update error:', error);
@@ -257,7 +280,7 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ route }) => {
             clearError();
           },
         },
-      ]
+      ],
     );
   };
 
@@ -272,7 +295,7 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ route }) => {
 
   const handleUnsavedChangesDecision = (save: boolean, discard: boolean) => {
     setShowUnsavedChanges(false);
-    
+
     if (save) {
       handleSave().then(() => {
         if (pendingNavigation) {
@@ -355,8 +378,8 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ route }) => {
             title="Basic Information"
             isExpanded={expandedSections.basic}
             onToggle={() => toggleSection('basic')}
-            showBadge={Object.keys(validationErrors).some(key => 
-              ['name', 'title', 'company', 'bio'].includes(key)
+            showBadge={Object.keys(validationErrors).some(key =>
+              ['name', 'title', 'company', 'bio'].includes(key),
             )}
           >
             <ProfileBasicInfoForm
@@ -371,8 +394,8 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ route }) => {
             title="Contact Information"
             isExpanded={expandedSections.contact}
             onToggle={() => toggleSection('contact')}
-            showBadge={Object.keys(validationErrors).some(key => 
-              ['email', 'phone', 'location', 'website'].includes(key)
+            showBadge={Object.keys(validationErrors).some(key =>
+              ['email', 'phone', 'location', 'website'].includes(key),
             )}
           >
             <ProfileContactForm
@@ -406,7 +429,7 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ route }) => {
             <ProfileSkillsForm
               skills={formData.skills}
               error={validationErrors.skills}
-              onSkillsChange={(skills) => handleFormChange('skills', skills)}
+              onSkillsChange={skills => handleFormChange('skills', skills)}
             />
           </CollapsibleSection>
 
@@ -418,7 +441,9 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ route }) => {
           >
             <ProfilePrivacySettings
               isPublic={formData.isPublic}
-              onPrivacyChange={(isPublic) => handleFormChange('isPublic', isPublic)}
+              onPrivacyChange={isPublic =>
+                handleFormChange('isPublic', isPublic)
+              }
             />
           </CollapsibleSection>
         </ScrollView>

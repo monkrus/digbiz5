@@ -1,9 +1,18 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
+import authReducer from './authSlice';
+import profileReducer from './profileSlice';
+import discoveryReducer from './slices/discoverySlice';
+import connectionReducer from './slices/connectionSlice';
+import messagingReducer from './slices/messagingSlice';
 
 export const store = configureStore({
   reducer: {
-    // Add your slice reducers here
+    auth: authReducer,
+    profile: profileReducer,
+    discovery: discoveryReducer,
+    connections: connectionReducer,
+    messaging: messagingReducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

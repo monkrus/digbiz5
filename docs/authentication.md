@@ -170,7 +170,7 @@ const {
   user,
   loading,
   error,
-  
+
   // Actions
   login,
   register,
@@ -182,7 +182,7 @@ const {
   requestPasswordReset,
   updatePassword,
   initializeAuth,
-  clearError
+  clearError,
 } = useAuth();
 ```
 
@@ -272,7 +272,7 @@ import { useAuth } from '../hooks/useAuth';
 
 const LoginScreen = () => {
   const { login, loading, error } = useAuth();
-  
+
   const handleLogin = async (credentials: LoginCredentials) => {
     try {
       await login(credentials);
@@ -281,7 +281,7 @@ const LoginScreen = () => {
       console.error('Login failed:', error);
     }
   };
-  
+
   return (
     // Login form UI
   );
@@ -297,7 +297,7 @@ import { useAuth } from '../hooks/useAuth';
 const GoogleLoginButton = () => {
   const { loginWithGoogle } = useAuth();
   const googleAuth = new GoogleAuthService();
-  
+
   const handleGoogleLogin = async () => {
     try {
       await googleAuth.initialize();
@@ -307,7 +307,7 @@ const GoogleLoginButton = () => {
       console.error('Google login failed:', error);
     }
   };
-  
+
   return (
     <TouchableOpacity onPress={handleGoogleLogin}>
       <Text>Sign in with Google</Text>
@@ -324,11 +324,11 @@ import { useAuth } from '../hooks/useAuth';
 
 const App = () => {
   const { initializeAuth, refreshTokens } = useAuth();
-  
+
   useEffect(() => {
     // Initialize auth state on app start
     initializeAuth();
-    
+
     // Set up auto-refresh interval
     const refreshInterval = setInterval(async () => {
       try {
@@ -337,10 +337,10 @@ const App = () => {
         // Handle refresh failure (user will be logged out)
       }
     }, 15 * 60 * 1000); // 15 minutes
-    
+
     return () => clearInterval(refreshInterval);
   }, []);
-  
+
   return <AppContent />;
 };
 ```
@@ -394,7 +394,7 @@ try {
       // Handle network issues
       break;
     default:
-      // Handle unknown errors
+    // Handle unknown errors
   }
 }
 ```
@@ -440,16 +440,19 @@ npm test -- --testPathPattern="integration.*auth"
 ### Common Issues
 
 1. **Google Sign-In fails**
+
    - Verify Google Client ID configuration
    - Check Google Play Services availability
    - Ensure SHA-1 fingerprints are configured
 
 2. **LinkedIn OAuth fails**
+
    - Verify client ID and secret configuration
    - Check redirect URI matches exactly
    - Ensure proper URL encoding
 
 3. **Token refresh fails**
+
    - Check token expiration times
    - Verify API endpoints are correct
    - Check network connectivity
@@ -478,7 +481,7 @@ The authentication system expects the following API endpoints:
 ### Authentication
 
 - `POST /auth/login` - Email/password login
-- `POST /auth/register` - User registration  
+- `POST /auth/register` - User registration
 - `POST /auth/logout` - User logout
 - `POST /auth/refresh` - Token refresh
 - `POST /auth/validate` - Token validation

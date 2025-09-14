@@ -48,21 +48,22 @@ class APIClient {
         ...this.defaultHeaders,
         ...options.headers,
       },
-      timeout: AppConfig.apiTimeout,
     };
 
     try {
       const response = await fetch(url, config);
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = (await response.json().catch(() => ({}))) as {
+          message?: string;
+        };
         throw new Error(
           errorData.message ||
             `HTTP ${response.status}: ${response.statusText}`,
         );
       }
 
-      return await response.json();
+      return (await response.json()) as T;
     } catch (error) {
       console.error(`API request failed: ${endpoint}`, error);
       throw error;
@@ -335,6 +336,8 @@ export class AuthenticationService implements AuthService {
       const tokens = await tokenStorage.getTokens();
 
       if (!tokens || !isRefreshTokenValid(tokens)) {
+        // Clear invalid tokens
+        await this.clearAuthState();
         throw new Error('No valid refresh token available');
       }
 
@@ -352,9 +355,16 @@ export class AuthenticationService implements AuthService {
       return response;
     } catch (error) {
       console.error('Token refresh failed:', error);
-      // Clear invalid tokens
-      await this.clearAuthState();
-      throw new Error('Session expired. Please login again.');
+      // Only clear auth state if we haven't already done so
+      if (
+        error instanceof Error &&
+        error.message !== 'No valid refresh token available'
+      ) {
+        await this.clearAuthState();
+        throw new Error('Session expired. Please login again.');
+      }
+      // Re-throw the original error if it's the "No valid refresh token" error
+      throw error;
     }
   }
 

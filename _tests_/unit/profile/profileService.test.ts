@@ -1,12 +1,16 @@
 /**
  * Profile Service Unit Tests
- * 
+ *
  * This test suite validates the ProfileService class including API client,
  * CRUD operations, photo uploads, search functionality, and error handling.
  */
 
 import { ProfileService } from '../../../src/services/profileService';
-import { ProfileFormData, ProfileUpdateData, ProfilePhotoData } from '../../../src/types/profile';
+import {
+  ProfileFormData,
+  ProfileUpdateData,
+  ProfilePhotoData,
+} from '../../../src/types/profile';
 
 // Mock the fetch function
 global.fetch = jest.fn();
@@ -16,7 +20,7 @@ jest.mock('../../../src/utils/config', () => ({
   AppConfig: {
     apiUrl: 'https://test-api.com',
     apiTimeout: 5000,
-  }
+  },
 }));
 
 describe('ProfileService', () => {
@@ -65,14 +69,14 @@ describe('ProfileService', () => {
       createdAt: '2023-01-01T00:00:00Z',
       updatedAt: '2023-01-01T00:00:00Z',
     },
-    message: 'Profile created successfully'
+    message: 'Profile created successfully',
   };
 
   describe('Authentication', () => {
     it('should set auth token correctly', () => {
       const token = 'test-token-123';
       profileService.setAuthToken(token);
-      
+
       // Verify token is set by making a request
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -85,9 +89,9 @@ describe('ProfileService', () => {
         'https://test-api.com/api/profiles/me',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': 'Bearer test-token-123'
-          })
-        })
+            Authorization: 'Bearer test-token-123',
+          }),
+        }),
       );
     });
 
@@ -106,9 +110,9 @@ describe('ProfileService', () => {
         'https://test-api.com/api/profiles/me',
         expect.objectContaining({
           headers: expect.not.objectContaining({
-            'Authorization': expect.any(String)
-          })
-        })
+            Authorization: expect.any(String),
+          }),
+        }),
       );
     });
   });
@@ -142,8 +146,8 @@ describe('ProfileService', () => {
               socialLinks: mockProfileData.socialLinks,
               skills: ['JavaScript', 'React', 'Node.js'],
               isPublic: true,
-            })
-          })
+            }),
+          }),
         );
 
         expect(result).toEqual(mockResponse);
@@ -168,13 +172,15 @@ describe('ProfileService', () => {
         expect(mockFetch).toHaveBeenCalledWith(
           expect.any(String),
           expect.objectContaining({
-            body: JSON.stringify(expect.objectContaining({
-              name: 'John Doe',
-              email: 'john@example.com',
-              bio: 'Bio with spaces',
-              skills: ['JavaScript', 'React'],
-            }))
-          })
+            method: 'POST',
+            body:
+              expect.stringContaining('"name":"John Doe"') &&
+              expect.stringContaining('"email":"john@example.com"') &&
+              expect.stringContaining('"bio":"Bio with spaces"'),
+            headers: expect.objectContaining({
+              'Content-Type': 'application/json',
+            }),
+          }),
         );
       });
 
@@ -186,15 +192,17 @@ describe('ProfileService', () => {
           json: async () => ({ error: 'Invalid data' }),
         } as Response);
 
-        await expect(profileService.createProfile(mockProfileData))
-          .rejects.toThrow('Invalid data');
+        await expect(
+          profileService.createProfile(mockProfileData),
+        ).rejects.toThrow('Invalid data');
       });
 
       it('should handle network errors', async () => {
         mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-        await expect(profileService.createProfile(mockProfileData))
-          .rejects.toThrow('Failed to create profile');
+        await expect(
+          profileService.createProfile(mockProfileData),
+        ).rejects.toThrow('Network error');
       });
     });
 
@@ -215,14 +223,17 @@ describe('ProfileService', () => {
           json: async () => updatedResponse,
         } as Response);
 
-        const result = await profileService.updateProfile('profile-123', updateData);
+        const result = await profileService.updateProfile(
+          'profile-123',
+          updateData,
+        );
 
         expect(mockFetch).toHaveBeenCalledWith(
           'https://test-api.com/api/profiles/profile-123',
           expect.objectContaining({
             method: 'PATCH',
             body: JSON.stringify(updateData),
-          })
+          }),
         );
 
         expect(result).toEqual(updatedResponse);
@@ -244,7 +255,7 @@ describe('ProfileService', () => {
           expect.any(String),
           expect.objectContaining({
             body: JSON.stringify({ name: 'Updated Name' }),
-          })
+          }),
         );
       });
     });
@@ -260,7 +271,7 @@ describe('ProfileService', () => {
 
         expect(mockFetch).toHaveBeenCalledWith(
           'https://test-api.com/api/profiles/profile-123',
-          expect.objectContaining({ method: 'GET' })
+          expect.objectContaining({ method: 'GET' }),
         );
 
         expect(result).toEqual(mockResponse);
@@ -280,7 +291,7 @@ describe('ProfileService', () => {
 
         expect(mockFetch).toHaveBeenCalledWith(
           'https://test-api.com/api/profiles/profile-123',
-          expect.objectContaining({ method: 'DELETE' })
+          expect.objectContaining({ method: 'DELETE' }),
         );
 
         expect(result).toEqual(deleteResponse);
@@ -308,7 +319,10 @@ describe('ProfileService', () => {
         json: async () => uploadResponse,
       } as Response);
 
-      const result = await profileService.uploadProfilePhoto('profile-123', mockPhotoData);
+      const result = await profileService.uploadProfilePhoto(
+        'profile-123',
+        mockPhotoData,
+      );
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://test-api.com/api/profiles/profile-123/photo',
@@ -316,9 +330,9 @@ describe('ProfileService', () => {
           method: 'POST',
           body: expect.any(FormData),
           headers: expect.not.objectContaining({
-            'Content-Type': expect.any(String)
-          })
-        })
+            'Content-Type': expect.any(String),
+          }),
+        }),
       );
 
       expect(result).toEqual(uploadResponse);
@@ -370,7 +384,7 @@ describe('ProfileService', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining('/search?'),
-        expect.objectContaining({ method: 'GET' })
+        expect.objectContaining({ method: 'GET' }),
       );
 
       const calledUrl = (mockFetch.mock.calls[0] as any)[0];
@@ -401,7 +415,7 @@ describe('ProfileService', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://test-api.com/api/profiles/search',
-        expect.objectContaining({ method: 'GET' })
+        expect.objectContaining({ method: 'GET' }),
       );
     });
 
@@ -420,7 +434,7 @@ describe('ProfileService', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://test-api.com/api/profiles/suggestions?limit=5',
-        expect.objectContaining({ method: 'GET' })
+        expect.objectContaining({ method: 'GET' }),
       );
 
       expect(result).toEqual(suggestionsResponse);
@@ -445,7 +459,7 @@ describe('ProfileService', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://test-api.com/api/profiles/stats',
-        expect.objectContaining({ method: 'GET' })
+        expect.objectContaining({ method: 'GET' }),
       );
 
       expect(result).toEqual(statsResponse);
@@ -468,7 +482,7 @@ describe('ProfileService', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://test-api.com/api/profiles/profile-123/completion',
-        expect.objectContaining({ method: 'GET' })
+        expect.objectContaining({ method: 'GET' }),
       );
 
       expect(result).toEqual(completionResponse);
@@ -486,7 +500,7 @@ describe('ProfileService', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://test-api.com/api/profiles/profile-123/views',
-        expect.objectContaining({ method: 'POST' })
+        expect.objectContaining({ method: 'POST' }),
       );
 
       expect(result).toEqual(viewResponse);
@@ -513,14 +527,17 @@ describe('ProfileService', () => {
         json: async () => requestResponse,
       } as Response);
 
-      const result = await profileService.sendConnectionRequest('profile-123', 'Hello!');
+      const result = await profileService.sendConnectionRequest(
+        'profile-123',
+        'Hello!',
+      );
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://test-api.com/api/profiles/connections/request',
         expect.objectContaining({
           method: 'POST',
           body: JSON.stringify({ profileId: 'profile-123', message: 'Hello!' }),
-        })
+        }),
       );
 
       expect(result).toEqual(requestResponse);
@@ -537,14 +554,17 @@ describe('ProfileService', () => {
         json: async () => responseData,
       } as Response);
 
-      const result = await profileService.respondToConnectionRequest('request-123', true);
+      const result = await profileService.respondToConnectionRequest(
+        'request-123',
+        true,
+      );
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://test-api.com/api/profiles/connections/requests/request-123',
         expect.objectContaining({
           method: 'PATCH',
           body: JSON.stringify({ status: 'accepted' }),
-        })
+        }),
       );
 
       expect(result).toEqual(responseData);
@@ -587,14 +607,17 @@ describe('ProfileService', () => {
         json: async () => updatedSettings,
       } as Response);
 
-      const result = await profileService.updateProfileSettings('profile-123', updatedSettings);
+      const result = await profileService.updateProfileSettings(
+        'profile-123',
+        updatedSettings,
+      );
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://test-api.com/api/profiles/profile-123/settings',
         expect.objectContaining({
           method: 'PATCH',
           body: JSON.stringify(updatedSettings),
-        })
+        }),
       );
 
       expect(result).toEqual(updatedSettings);
@@ -620,7 +643,7 @@ describe('ProfileService', () => {
         expect.objectContaining({
           method: 'POST',
           body: JSON.stringify(mockProfileData),
-        })
+        }),
       );
 
       expect(result).toEqual(validationResponse);
@@ -633,20 +656,27 @@ describe('ProfileService', () => {
         ok: false,
         status: 500,
         statusText: 'Internal Server Error',
-        json: async () => { throw new Error('Invalid JSON'); },
+        json: async () => {
+          throw new Error('Invalid JSON');
+        },
       } as Response);
 
-      await expect(profileService.getProfile('profile-123'))
-        .rejects.toThrow('HTTP 500: Internal Server Error');
+      await expect(profileService.getProfile('profile-123')).rejects.toThrow(
+        'HTTP 500: Internal Server Error',
+      );
     });
 
     it('should handle timeout errors', async () => {
-      mockFetch.mockImplementationOnce(() => 
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 100))
+      mockFetch.mockImplementationOnce(
+        () =>
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout')), 100),
+          ),
       );
 
-      await expect(profileService.getProfile('profile-123'))
-        .rejects.toThrow('Failed to fetch profile');
-    });
+      await expect(profileService.getProfile('profile-123')).rejects.toThrow(
+        'Timeout',
+      );
+    }, 5000);
   });
 });

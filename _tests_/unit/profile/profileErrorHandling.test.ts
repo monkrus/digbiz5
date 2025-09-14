@@ -1,6 +1,6 @@
 /**
  * Profile Error Handling Unit Tests
- * 
+ *
  * This test suite validates the ProfileErrorHandler class including error
  * classification, user-friendly messages, retry logic, and error recovery.
  */
@@ -18,7 +18,10 @@ import { ProfileValidationErrors } from '../../../src/types/profile';
 describe('ProfileErrorHandler', () => {
   describe('Error Classification', () => {
     it('should classify network errors correctly', () => {
-      const networkError = { name: 'NetworkError', message: 'Network connection failed' };
+      const networkError = {
+        name: 'NetworkError',
+        message: 'Network connection failed',
+      };
       const error = ProfileErrorHandler.handleError(networkError);
 
       expect(error.type).toBe(ProfileErrorType.NETWORK_ERROR);
@@ -30,7 +33,7 @@ describe('ProfileErrorHandler', () => {
       const validationError = {
         status: 400,
         errors: { name: 'Name is required', email: 'Invalid email' },
-        message: 'Validation failed'
+        message: 'Validation failed',
       };
       const error = ProfileErrorHandler.handleError(validationError);
 
@@ -59,7 +62,7 @@ describe('ProfileErrorHandler', () => {
     it('should classify file upload errors correctly', () => {
       const uploadError = {
         code: 'FILE_UPLOAD_ERROR',
-        message: 'File upload failed'
+        message: 'File upload failed',
       };
       const error = ProfileErrorHandler.handleError(uploadError);
 
@@ -104,9 +107,12 @@ describe('ProfileErrorHandler', () => {
       const context: ErrorContext = {
         operation: 'createProfile',
         userId: 'user-123',
-        metadata: { attempt: 1 }
+        metadata: { attempt: 1 },
       };
-      const error = ProfileErrorHandler.handleError(new Error('Test error'), context);
+      const error = ProfileErrorHandler.handleError(
+        new Error('Test error'),
+        context,
+      );
 
       expect(error.details.context).toEqual(context);
     });
@@ -126,12 +132,15 @@ describe('ProfileErrorHandler', () => {
       const updateContext = { operation: 'update' };
       const uploadContext = { operation: 'upload' };
 
-      expect(ProfileErrorHandler.getUserFriendlyMessage(serverError, createContext))
-        .toContain('Failed to create profile');
-      expect(ProfileErrorHandler.getUserFriendlyMessage(serverError, updateContext))
-        .toContain('Failed to update profile');
-      expect(ProfileErrorHandler.getUserFriendlyMessage(serverError, uploadContext))
-        .toContain('Failed to upload photo');
+      expect(
+        ProfileErrorHandler.getUserFriendlyMessage(serverError, createContext),
+      ).toContain('Failed to create profile');
+      expect(
+        ProfileErrorHandler.getUserFriendlyMessage(serverError, updateContext),
+      ).toContain('Failed to update profile');
+      expect(
+        ProfileErrorHandler.getUserFriendlyMessage(serverError, uploadContext),
+      ).toContain('Failed to upload photo');
     });
 
     it('should return specific validation error messages', () => {
@@ -144,14 +153,17 @@ describe('ProfileErrorHandler', () => {
         details: {
           validationErrors: {
             name: 'Name is required',
-            email: 'Invalid email format'
-          }
-        }
+            email: 'Invalid email format',
+          },
+        },
       };
 
       const fieldContext = { field: 'name' };
-      const message = ProfileErrorHandler.getUserFriendlyMessage(validationError, fieldContext);
-      
+      const message = ProfileErrorHandler.getUserFriendlyMessage(
+        validationError,
+        fieldContext,
+      );
+
       expect(message).toBe('Name is required');
     });
 
@@ -164,23 +176,36 @@ describe('ProfileErrorHandler', () => {
         userMessage: 'Please check your input',
         details: {
           validationErrors: {
-            name: 'Name is required'
-          }
-        }
+            name: 'Name is required',
+          },
+        },
       };
 
-      const message = ProfileErrorHandler.getUserFriendlyMessage(validationError);
-      
+      const message =
+        ProfileErrorHandler.getUserFriendlyMessage(validationError);
+
       expect(message).toBe('Name is required');
     });
 
     it('should handle different error types with appropriate messages', () => {
       const errorTypes = [
-        { type: ProfileErrorType.NETWORK_ERROR, expectedText: 'internet connection' },
-        { type: ProfileErrorType.AUTHENTICATION_ERROR, expectedText: 'session has expired' },
+        {
+          type: ProfileErrorType.NETWORK_ERROR,
+          expectedText: 'internet connection',
+        },
+        {
+          type: ProfileErrorType.AUTHENTICATION_ERROR,
+          expectedText: 'session has expired',
+        },
         { type: ProfileErrorType.PERMISSION_ERROR, expectedText: 'permission' },
-        { type: ProfileErrorType.FILE_UPLOAD_ERROR, expectedText: 'Failed to upload' },
-        { type: ProfileErrorType.RATE_LIMIT_ERROR, expectedText: 'too many requests' },
+        {
+          type: ProfileErrorType.FILE_UPLOAD_ERROR,
+          expectedText: 'Failed to upload',
+        },
+        {
+          type: ProfileErrorType.RATE_LIMIT_ERROR,
+          expectedText: 'too many requests',
+        },
       ];
 
       errorTypes.forEach(({ type, expectedText }) => {
@@ -323,8 +348,12 @@ describe('ProfileErrorHandler', () => {
       };
 
       // Very high attempt count should be capped
-      expect(ProfileErrorHandler.getRetryDelay(rateLimitError, 10)).toBeLessThanOrEqual(30000);
-      expect(ProfileErrorHandler.getRetryDelay(serverError, 10)).toBeLessThanOrEqual(10000);
+      expect(
+        ProfileErrorHandler.getRetryDelay(rateLimitError, 10),
+      ).toBeLessThanOrEqual(30000);
+      expect(
+        ProfileErrorHandler.getRetryDelay(serverError, 10),
+      ).toBeLessThanOrEqual(10000);
     });
   });
 
@@ -350,7 +379,8 @@ describe('ProfileErrorHandler', () => {
         phone: '', // Empty error should be filtered out
       };
 
-      const formatted = ProfileErrorHandler.formatValidationErrors(validationErrors);
+      const formatted =
+        ProfileErrorHandler.formatValidationErrors(validationErrors);
 
       expect(formatted).toHaveLength(2);
       expect(formatted).toContain('Name: Name is required');
@@ -391,12 +421,30 @@ describe('ProfileErrorHandler', () => {
 
     it('should provide recovery suggestions for different error types', () => {
       const errorTypes = [
-        { type: ProfileErrorType.NETWORK_ERROR, expectedSuggestions: ['internet connection', 'Try again'] },
-        { type: ProfileErrorType.VALIDATION_ERROR, expectedSuggestions: ['highlighted fields', 'required fields'] },
-        { type: ProfileErrorType.FILE_UPLOAD_ERROR, expectedSuggestions: ['10MB', 'image format'] },
-        { type: ProfileErrorType.AUTHENTICATION_ERROR, expectedSuggestions: ['Log out', 'log in'] },
-        { type: ProfileErrorType.RATE_LIMIT_ERROR, expectedSuggestions: ['Wait', 'rapid requests'] },
-        { type: ProfileErrorType.SERVER_ERROR, expectedSuggestions: ['Try again later', 'support'] },
+        {
+          type: ProfileErrorType.NETWORK_ERROR,
+          expectedSuggestions: ['internet connection', 'Try again'],
+        },
+        {
+          type: ProfileErrorType.VALIDATION_ERROR,
+          expectedSuggestions: ['highlighted fields', 'required fields'],
+        },
+        {
+          type: ProfileErrorType.FILE_UPLOAD_ERROR,
+          expectedSuggestions: ['10MB', 'image format'],
+        },
+        {
+          type: ProfileErrorType.AUTHENTICATION_ERROR,
+          expectedSuggestions: ['Log out', 'log in'],
+        },
+        {
+          type: ProfileErrorType.RATE_LIMIT_ERROR,
+          expectedSuggestions: ['Wait', 'rapid requests'],
+        },
+        {
+          type: ProfileErrorType.SERVER_ERROR,
+          expectedSuggestions: ['Try again later', 'support'],
+        },
       ];
 
       errorTypes.forEach(({ type, expectedSuggestions }) => {
@@ -410,7 +458,7 @@ describe('ProfileErrorHandler', () => {
 
         const suggestions = ProfileErrorHandler.getRecoverySuggestion(error);
         expect(suggestions.length).toBeGreaterThan(0);
-        
+
         const allSuggestions = suggestions.join(' ').toLowerCase();
         expectedSuggestions.forEach(expectedText => {
           expect(allSuggestions).toContain(expectedText.toLowerCase());
@@ -445,11 +493,14 @@ describe('ProfileErrorHandler', () => {
       const context: ErrorContext = { operation: 'test' };
       ProfileErrorHandler.logError(error, context);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Profile Error:', expect.objectContaining({
-        type: ProfileErrorType.NETWORK_ERROR,
-        message: 'Network error',
-        context,
-      }));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Profile Error:',
+        expect.objectContaining({
+          type: ProfileErrorType.NETWORK_ERROR,
+          message: 'Network error',
+          context,
+        }),
+      );
 
       (global as any).__DEV__ = originalDev;
     });
@@ -491,7 +542,8 @@ describe('Retry Functions', () => {
     });
 
     it('should retry on retryable errors', async () => {
-      const operation = jest.fn()
+      const operation = jest
+        .fn()
         .mockRejectedValueOnce(new Error('Network error'))
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValue('success');
@@ -506,10 +558,11 @@ describe('Retry Functions', () => {
       const validationError = { status: 400, errors: { name: 'Required' } };
       const operation = jest.fn().mockRejectedValue(validationError);
 
-      await expect(retryWithBackoff(operation, { operation: 'test' }))
-        .rejects.toMatchObject({
-          type: ProfileErrorType.VALIDATION_ERROR,
-        });
+      await expect(
+        retryWithBackoff(operation, { operation: 'test' }),
+      ).rejects.toMatchObject({
+        type: ProfileErrorType.VALIDATION_ERROR,
+      });
 
       expect(operation).toHaveBeenCalledTimes(1);
     });
@@ -518,10 +571,11 @@ describe('Retry Functions', () => {
       const networkError = { name: 'NetworkError', message: 'Network failed' };
       const operation = jest.fn().mockRejectedValue(networkError);
 
-      await expect(retryWithBackoff(operation, { operation: 'test' }, 2))
-        .rejects.toMatchObject({
-          type: ProfileErrorType.NETWORK_ERROR,
-        });
+      await expect(
+        retryWithBackoff(operation, { operation: 'test' }, 2),
+      ).rejects.toMatchObject({
+        type: ProfileErrorType.NETWORK_ERROR,
+      });
 
       expect(operation).toHaveBeenCalledTimes(3); // Initial + 2 retries
     });
@@ -558,11 +612,12 @@ describe('Retry Functions', () => {
       const originalError = new Error('Original error');
       const operation = jest.fn().mockRejectedValue(originalError);
 
-      await expect(withProfileErrorHandling(operation, { operation: 'test' }))
-        .rejects.toMatchObject({
-          type: ProfileErrorType.UNKNOWN_ERROR,
-          message: 'Original error',
-        });
+      await expect(
+        withProfileErrorHandling(operation, { operation: 'test' }),
+      ).rejects.toMatchObject({
+        type: ProfileErrorType.UNKNOWN_ERROR,
+        message: 'Original error',
+      });
     });
 
     it('should preserve error context', async () => {

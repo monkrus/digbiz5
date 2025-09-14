@@ -1,6 +1,6 @@
 /**
  * Profile Error Handling Utilities
- * 
+ *
  * This file contains utilities for handling profile-related errors including
  * error classification, user-friendly messages, retry logic, and error reporting.
  */
@@ -46,7 +46,7 @@ export class ProfileErrorHandler {
    */
   static handleError(error: any, context?: ErrorContext): ProfileError {
     const timestamp = new Date();
-    
+
     // Network errors
     if (this.isNetworkError(error)) {
       return {
@@ -54,7 +54,8 @@ export class ProfileErrorHandler {
         message: error.message,
         timestamp,
         retryable: true,
-        userMessage: 'Network connection error. Please check your internet connection and try again.',
+        userMessage:
+          'Network connection error. Please check your internet connection and try again.',
         details: { context },
       };
     }
@@ -91,7 +92,7 @@ export class ProfileErrorHandler {
         message: error.message,
         timestamp,
         retryable: false,
-        userMessage: 'You don\'t have permission to perform this action.',
+        userMessage: "You don't have permission to perform this action.",
         details: { context },
       };
     }
@@ -115,7 +116,8 @@ export class ProfileErrorHandler {
         message: error.message,
         timestamp,
         retryable: true,
-        userMessage: 'Failed to upload file. Please try again with a different file.',
+        userMessage:
+          'Failed to upload file. Please try again with a different file.',
         details: { context },
       };
     }
@@ -159,16 +161,19 @@ export class ProfileErrorHandler {
   /**
    * Get user-friendly error message based on error type and context
    */
-  static getUserFriendlyMessage(error: ProfileError, context?: ErrorContext): string {
+  static getUserFriendlyMessage(
+    error: ProfileError,
+    context?: ErrorContext,
+  ): string {
     const operation = context?.operation || 'operation';
-    
+
     switch (error.type) {
       case ProfileErrorType.VALIDATION_ERROR:
         return this.getValidationErrorMessage(error, context);
-      
+
       case ProfileErrorType.NETWORK_ERROR:
         return 'Unable to connect to the server. Please check your internet connection and try again.';
-      
+
       case ProfileErrorType.SERVER_ERROR:
         if (operation === 'create') {
           return 'Failed to create profile. Please try again later.';
@@ -178,31 +183,36 @@ export class ProfileErrorHandler {
           return 'Failed to upload photo. Please try again later.';
         }
         return 'Server error occurred. Please try again later.';
-      
+
       case ProfileErrorType.AUTHENTICATION_ERROR:
         return 'Your session has expired. Please log in again.';
-      
+
       case ProfileErrorType.PERMISSION_ERROR:
-        return 'You don\'t have permission to access or modify this profile.';
-      
+        return "You don't have permission to access or modify this profile.";
+
       case ProfileErrorType.FILE_UPLOAD_ERROR:
         return 'Failed to upload the image. Please ensure the file is a valid image under 10MB.';
-      
+
       case ProfileErrorType.NOT_FOUND_ERROR:
         return 'The requested profile could not be found.';
-      
+
       case ProfileErrorType.RATE_LIMIT_ERROR:
-        return 'You\'re making too many requests. Please wait a moment and try again.';
-      
+        return "You're making too many requests. Please wait a moment and try again.";
+
       default:
-        return error.userMessage || 'An unexpected error occurred. Please try again.';
+        return (
+          error.userMessage || 'An unexpected error occurred. Please try again.'
+        );
     }
   }
 
   /**
    * Get specific validation error messages
    */
-  private static getValidationErrorMessage(error: ProfileError, context?: ErrorContext): string {
+  private static getValidationErrorMessage(
+    error: ProfileError,
+    context?: ErrorContext,
+  ): string {
     const field = context?.field;
     const validationErrors = error.details?.validationErrors;
 
@@ -229,9 +239,11 @@ export class ProfileErrorHandler {
     }
 
     // Don't retry validation and permission errors
-    if (error.type === ProfileErrorType.VALIDATION_ERROR ||
-        error.type === ProfileErrorType.PERMISSION_ERROR ||
-        error.type === ProfileErrorType.AUTHENTICATION_ERROR) {
+    if (
+      error.type === ProfileErrorType.VALIDATION_ERROR ||
+      error.type === ProfileErrorType.PERMISSION_ERROR ||
+      error.type === ProfileErrorType.AUTHENTICATION_ERROR
+    ) {
       return false;
     }
 
@@ -248,20 +260,20 @@ export class ProfileErrorHandler {
    */
   static getRetryDelay(error: ProfileError, attemptCount: number): number {
     const baseDelay = 1000; // 1 second
-    
+
     switch (error.type) {
       case ProfileErrorType.RATE_LIMIT_ERROR:
         // Exponential backoff for rate limits: 2s, 4s, 8s
         return Math.min(baseDelay * Math.pow(2, attemptCount + 1), 30000);
-      
+
       case ProfileErrorType.NETWORK_ERROR:
         // Linear increase for network errors: 1s, 2s, 3s
         return baseDelay * (attemptCount + 1);
-      
+
       case ProfileErrorType.SERVER_ERROR:
         // Exponential backoff for server errors: 1s, 2s, 4s
         return Math.min(baseDelay * Math.pow(2, attemptCount), 10000);
-      
+
       default:
         return baseDelay;
     }
@@ -271,58 +283,75 @@ export class ProfileErrorHandler {
    * Error type detection methods
    */
   private static isNetworkError(error: any): boolean {
-    return error.name === 'NetworkError' ||
-           error.message?.includes('Network') ||
-           error.message?.includes('fetch') ||
-           error.code === 'NETWORK_ERROR';
+    return (
+      error.name === 'NetworkError' ||
+      error.message?.includes('Network') ||
+      error.message?.includes('fetch') ||
+      error.code === 'NETWORK_ERROR'
+    );
   }
 
   private static isValidationError(error: any): boolean {
-    return error.name === 'ValidationError' ||
-           error.status === 400 ||
-           error.code === 'VALIDATION_ERROR' ||
-           (error.errors && typeof error.errors === 'object');
+    return (
+      error.name === 'ValidationError' ||
+      error.status === 400 ||
+      error.code === 'VALIDATION_ERROR' ||
+      (error.errors && typeof error.errors === 'object')
+    );
   }
 
   private static isAuthenticationError(error: any): boolean {
-    return error.status === 401 ||
-           error.code === 'UNAUTHORIZED' ||
-           error.message?.includes('Authentication') ||
-           error.message?.includes('Unauthorized');
+    return (
+      error.status === 401 ||
+      error.code === 'UNAUTHORIZED' ||
+      error.message?.includes('Authentication') ||
+      error.message?.includes('Unauthorized')
+    );
   }
 
   private static isPermissionError(error: any): boolean {
-    return error.status === 403 ||
-           error.code === 'FORBIDDEN' ||
-           error.message?.includes('Permission') ||
-           error.message?.includes('Forbidden');
+    return (
+      error.status === 403 ||
+      error.code === 'FORBIDDEN' ||
+      error.message?.includes('Permission') ||
+      error.message?.includes('Forbidden')
+    );
   }
 
   private static isFileUploadError(error: any): boolean {
-    return error.code === 'FILE_UPLOAD_ERROR' ||
-           error.message?.includes('upload') ||
-           error.message?.includes('file') ||
-           (error.status >= 400 && error.status < 500 && 
-            error.message?.includes('image'));
+    return (
+      error.code === 'FILE_UPLOAD_ERROR' ||
+      error.message?.includes('upload') ||
+      error.message?.includes('file') ||
+      (error.status >= 400 &&
+        error.status < 500 &&
+        error.message?.includes('image'))
+    );
   }
 
   private static isNotFoundError(error: any): boolean {
-    return error.status === 404 ||
-           error.code === 'NOT_FOUND' ||
-           error.message?.includes('not found');
+    return (
+      error.status === 404 ||
+      error.code === 'NOT_FOUND' ||
+      error.message?.includes('not found')
+    );
   }
 
   private static isRateLimitError(error: any): boolean {
-    return error.status === 429 ||
-           error.code === 'RATE_LIMIT' ||
-           error.message?.includes('rate limit') ||
-           error.message?.includes('too many requests');
+    return (
+      error.status === 429 ||
+      error.code === 'RATE_LIMIT' ||
+      error.message?.includes('rate limit') ||
+      error.message?.includes('too many requests')
+    );
   }
 
   private static isServerError(error: any): boolean {
-    return error.status >= 500 ||
-           error.code === 'SERVER_ERROR' ||
-           error.message?.includes('Server Error');
+    return (
+      error.status >= 500 ||
+      error.code === 'SERVER_ERROR' ||
+      error.message?.includes('Server Error')
+    );
   }
 
   /**
@@ -354,7 +383,7 @@ export class ProfileErrorHandler {
    */
   static createValidationError(errors: ProfileValidationErrors): ProfileError {
     const firstError = Object.values(errors)[0] || 'Validation failed';
-    
+
     return {
       type: ProfileErrorType.VALIDATION_ERROR,
       message: 'Validation failed',
@@ -381,9 +410,11 @@ export class ProfileErrorHandler {
    * Check if two errors are the same
    */
   static isSameError(error1: ProfileError, error2: ProfileError): boolean {
-    return error1.type === error2.type &&
-           error1.message === error2.message &&
-           error1.code === error2.code;
+    return (
+      error1.type === error2.type &&
+      error1.message === error2.message &&
+      error1.code === error2.code
+    );
   }
 
   /**
@@ -442,26 +473,29 @@ export class ProfileErrorHandler {
 export async function retryWithBackoff<T>(
   operation: () => Promise<T>,
   context?: ErrorContext,
-  maxRetries: number = 3
+  maxRetries: number = 3,
 ): Promise<T> {
   let lastError: ProfileError | null = null;
-  
+
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       return await operation();
     } catch (error) {
       lastError = ProfileErrorHandler.handleError(error, context);
-      
-      if (attempt === maxRetries || !ProfileErrorHandler.shouldRetry(lastError, attempt)) {
+
+      if (
+        attempt === maxRetries ||
+        !ProfileErrorHandler.shouldRetry(lastError, attempt)
+      ) {
         ProfileErrorHandler.logError(lastError, context);
         throw lastError;
       }
-      
+
       const delay = ProfileErrorHandler.getRetryDelay(lastError, attempt);
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
-  
+
   // This should never be reached, but TypeScript requires it
   throw lastError!;
 }
@@ -471,7 +505,7 @@ export async function retryWithBackoff<T>(
  */
 export async function withProfileErrorHandling<T>(
   operation: () => Promise<T>,
-  context?: ErrorContext
+  context?: ErrorContext,
 ): Promise<T> {
   try {
     return await operation();

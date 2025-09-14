@@ -8,10 +8,7 @@
 import { JWTTokens } from '../types/auth';
 import { authService } from './authService';
 import { tokenStorage } from './tokenStorage';
-import {
-  validateTokens,
-  getOptimalRefreshTime,
-} from '../utils/tokenUtils';
+import { validateTokens, getOptimalRefreshTime } from '../utils/tokenUtils';
 
 // Token refresh events
 export type TokenRefreshEvent =
@@ -122,13 +119,13 @@ export class TokenRefreshService {
     // Schedule refresh
     this.refreshTimer = setTimeout(() => {
       this.performRefresh();
-    }, refreshTime * 1000);
+    }, refreshTime * 1000) as any;
 
     // Schedule expiration warning
     if (validation.expiresIn && validation.expiresIn > 0) {
       this.expirationTimer = setTimeout(() => {
         this.emitEvent('token_expired');
-      }, validation.expiresIn * 1000);
+      }, validation.expiresIn * 1000) as any;
     }
 
     this.emitEvent('refresh_scheduled', { refreshIn: refreshTime });

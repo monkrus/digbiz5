@@ -4,10 +4,12 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 export type RootStackParamList = {
   Home: undefined;
   Profile: undefined;
+  Discovery: undefined;
 };
 
 export type TabParamList = {
   HomeTab: undefined;
+  DiscoveryTab: undefined;
   ProfileTab: undefined;
 };
 

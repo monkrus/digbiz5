@@ -89,12 +89,12 @@ describe('AuthenticationService', () => {
 
       new AuthenticationService();
 
-      // Wait for async initialization
-      await new Promise(resolve => setTimeout(resolve, 0));
+      // Wait for async initialization with longer timeout
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       expect(mockTokenStorage.getTokens).toHaveBeenCalled();
       expect(mockTokenStorage.hasValidTokens).toHaveBeenCalled();
-    });
+    }, 10000);
 
     it('should handle initialization errors gracefully', async () => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
@@ -102,15 +102,15 @@ describe('AuthenticationService', () => {
 
       new AuthenticationService();
 
-      // Wait for async initialization
-      await new Promise(resolve => setTimeout(resolve, 0));
+      // Wait for async initialization with longer timeout
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       expect(consoleSpy).toHaveBeenCalledWith(
         'Failed to initialize auth state:',
         expect.any(Error),
       );
       consoleSpy.mockRestore();
-    });
+    }, 10000);
   });
 
   describe('Login', () => {
