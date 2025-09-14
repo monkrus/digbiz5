@@ -1,0 +1,40 @@
+c96ca4c6d703afde7d510ea6c8f2c617
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.EnsureSingleNavigator = EnsureSingleNavigator;
+exports.SingleNavigatorContext = void 0;
+var React = _interopRequireWildcard(require("react"));
+var _jsxRuntime = require("react/jsx-runtime");
+function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function _interopRequireWildcard(e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, default: e }; if (null === e || "object" != typeof e && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t in e) "default" !== _t && {}.hasOwnProperty.call(e, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e[_t]); return f; })(e, t); }
+var MULTIPLE_NAVIGATOR_ERROR = `Another navigator is already registered for this container. You likely have multiple navigators under a single "NavigationContainer" or "Screen". Make sure each navigator is under a separate "Screen" container. See https://reactnavigation.org/docs/nesting-navigators for a guide on nesting.`;
+var SingleNavigatorContext = exports.SingleNavigatorContext = React.createContext(undefined);
+function EnsureSingleNavigator(_ref) {
+  var children = _ref.children;
+  var navigatorKeyRef = React.useRef(undefined);
+  var value = React.useMemo(function () {
+    return {
+      register: function register(key) {
+        var currentKey = navigatorKeyRef.current;
+        if (currentKey !== undefined && key !== currentKey) {
+          throw new Error(MULTIPLE_NAVIGATOR_ERROR);
+        }
+        navigatorKeyRef.current = key;
+      },
+      unregister: function unregister(key) {
+        var currentKey = navigatorKeyRef.current;
+        if (key !== currentKey) {
+          return;
+        }
+        navigatorKeyRef.current = undefined;
+      }
+    };
+  }, []);
+  return (0, _jsxRuntime.jsx)(SingleNavigatorContext.Provider, {
+    value: value,
+    children: children
+  });
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJSZWFjdCIsIl9pbnRlcm9wUmVxdWlyZVdpbGRjYXJkIiwicmVxdWlyZSIsIl9qc3hSdW50aW1lIiwiZSIsInQiLCJXZWFrTWFwIiwiciIsIm4iLCJfX2VzTW9kdWxlIiwibyIsImkiLCJmIiwiX19wcm90b19fIiwiZGVmYXVsdCIsImhhcyIsImdldCIsInNldCIsIl90IiwiaGFzT3duUHJvcGVydHkiLCJjYWxsIiwiT2JqZWN0IiwiZGVmaW5lUHJvcGVydHkiLCJnZXRPd25Qcm9wZXJ0eURlc2NyaXB0b3IiLCJNVUxUSVBMRV9OQVZJR0FUT1JfRVJST1IiLCJTaW5nbGVOYXZpZ2F0b3JDb250ZXh0IiwiZXhwb3J0cyIsImNyZWF0ZUNvbnRleHQiLCJ1bmRlZmluZWQiLCJFbnN1cmVTaW5nbGVOYXZpZ2F0b3IiLCJfcmVmIiwiY2hpbGRyZW4iLCJuYXZpZ2F0b3JLZXlSZWYiLCJ1c2VSZWYiLCJ2YWx1ZSIsInVzZU1lbW8iLCJyZWdpc3RlciIsImtleSIsImN1cnJlbnRLZXkiLCJjdXJyZW50IiwiRXJyb3IiLCJ1bnJlZ2lzdGVyIiwiX2pzeCIsIlByb3ZpZGVyIl0sInNvdXJjZXMiOlsiLi4vLi4vc3JjL0Vuc3VyZVNpbmdsZU5hdmlnYXRvci50c3giXSwic291cmNlc0NvbnRlbnQiOltudWxsXSwibWFwcGluZ3MiOiI7Ozs7Ozs7QUFBQSxJQUFBQSxLQUFBLEdBQUFDLHVCQUFBLENBQUFDLE9BQUE7QUFBK0IsSUFBQUMsV0FBQSxHQUFBRCxPQUFBO0FBQUEsU0FBQUQsd0JBQUFHLENBQUEsRUFBQUMsQ0FBQSw2QkFBQUMsT0FBQSxNQUFBQyxDQUFBLE9BQUFELE9BQUEsSUFBQUUsQ0FBQSxPQUFBRixPQUFBLFlBQUFMLHVCQUFBLFlBQUFBLHdCQUFBRyxDQUFBLEVBQUFDLENBQUEsU0FBQUEsQ0FBQSxJQUFBRCxDQUFBLElBQUFBLENBQUEsQ0FBQUssVUFBQSxTQUFBTCxDQUFBLE1BQUFNLENBQUEsRUFBQUMsQ0FBQSxFQUFBQyxDQUFBLEtBQUFDLFNBQUEsUUFBQUMsT0FBQSxFQUFBVixDQUFBLGlCQUFBQSxDQUFBLHVCQUFBQSxDQUFBLHlCQUFBQSxDQUFBLFNBQUFRLENBQUEsTUFBQUYsQ0FBQSxHQUFBTCxDQUFBLEdBQUFHLENBQUEsR0FBQUQsQ0FBQSxRQUFBRyxDQUFBLENBQUFLLEdBQUEsQ0FBQVgsQ0FBQSxVQUFBTSxDQUFBLENBQUFNLEdBQUEsQ0FBQVosQ0FBQSxHQUFBTSxDQUFBLENBQUFPLEdBQUEsQ0FBQWIsQ0FBQSxFQUFBUSxDQUFBLGNBQUFNLEVBQUEsSUFBQWQsQ0FBQSxnQkFBQWMsRUFBQSxPQUFBQyxjQUFBLENBQUFDLElBQUEsQ0FBQWhCLENBQUEsRUFBQWMsRUFBQSxPQUFBUCxDQUFBLElBQUFELENBQUEsR0FBQVcsTUFBQSxDQUFBQyxjQUFBLEtBQUFELE1BQUEsQ0FBQUUsd0JBQUEsQ0FBQW5CLENBQUEsRUFBQWMsRUFBQSxPQUFBUCxDQUFBLENBQUFLLEdBQUEsSUFBQUwsQ0FBQSxDQUFBTSxHQUFBLElBQUFQLENBQUEsQ0FBQUUsQ0FBQSxFQUFBTSxFQUFBLEVBQUFQLENBQUEsSUFBQUMsQ0FBQSxDQUFBTSxFQUFBLElBQUFkLENBQUEsQ0FBQWMsRUFBQSxXQUFBTixDQUFBLEtBQUFSLENBQUEsRUFBQUMsQ0FBQTtBQU0vQixJQUFNbUIsd0JBQXdCLEdBQUcsb1NBQW9TO0FBRTlULElBQU1DLHNCQUFzQixHQUFBQyxPQUFBLENBQUFELHNCQUFBLEdBQUd6QixLQUFLLENBQUMyQixhQUFhLENBTXZEQyxTQUFTLENBQUM7QUFLTCxTQUFTQyxxQkFBcUJBLENBQUFDLElBQUEsRUFBc0I7RUFBQSxJQUFuQkMsUUFBQSxHQUFBRCxJQUFBLENBQUFDLFFBQUE7RUFDdEMsSUFBTUMsZUFBZSxHQUFHaEMsS0FBSyxDQUFDaUMsTUFBTSxDQUFxQkwsU0FBUyxDQUFDO0VBRW5FLElBQU1NLEtBQUssR0FBR2xDLEtBQUssQ0FBQ21DLE9BQU8sQ0FDekI7SUFBQSxPQUFPO01BQ0xDLFFBQVEsV0FBUkEsUUFBUUEsQ0FBQ0MsR0FBVyxFQUFFO1FBQ3BCLElBQU1DLFVBQVUsR0FBR04sZUFBZSxDQUFDTyxPQUFPO1FBRTFDLElBQUlELFVBQVUsS0FBS1YsU0FBUyxJQUFJUyxHQUFHLEtBQUtDLFVBQVUsRUFBRTtVQUNsRCxNQUFNLElBQUlFLEtBQUssQ0FBQ2hCLHdCQUF3QixDQUFDO1FBQzNDO1FBRUFRLGVBQWUsQ0FBQ08sT0FBTyxHQUFHRixHQUFHO01BQy9CLENBQUM7TUFDREksVUFBVSxXQUFWQSxVQUFVQSxDQUFDSixHQUFXLEVBQUU7UUFDdEIsSUFBTUMsVUFBVSxHQUFHTixlQUFlLENBQUNPLE9BQU87UUFFMUMsSUFBSUYsR0FBRyxLQUFLQyxVQUFVLEVBQUU7VUFDdEI7UUFDRjtRQUVBTixlQUFlLENBQUNPLE9BQU8sR0FBR1gsU0FBUztNQUNyQztJQUNGLENBQUM7RUFBQSxDQUFDLEVBQ0YsRUFDRixDQUFDO0VBRUQsT0FDRSxJQUFBYyxlQUFBLEVBQUNqQixzQkFBc0IsQ0FBQ2tCLFFBQVE7SUFBQ1QsS0FBSyxFQUFFQSxLQUFNO0lBQUFILFFBQUEsRUFDM0NBO0VBQVEsQ0FDc0IsQ0FBQztBQUV0QyIsImlnbm9yZUxpc3QiOltdfQ==

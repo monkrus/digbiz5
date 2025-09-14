@@ -1,0 +1,55 @@
+name: Test on Push/PR
+
+# Run tests on every push and pull request
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    name: Run All Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run linting
+        run: npm run lint
+      
+      - name: Run all tests
+        run: npm test -- --coverage --passWithNoTests
+        
+      - name: Check test count
+        run: |
+          TEST_COUNT=$(npm test -- --listTests | wc -l)
+          echo "Total test files found: $TEST_COUNT"
+          echo "TEST_COUNT=$TEST_COUNT" >> $GITHUB_ENV
+        
+      - name: Generate test summary
+        if: always()
+        run: |
+          echo "## Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Files Discovered:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          npm test -- --listTests >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Total test files:** $TEST_COUNT" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ github.sha }}
+          path: coverage/
