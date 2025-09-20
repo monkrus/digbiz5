@@ -90,10 +90,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
       <View style={styles.field}>
         <Text style={styles.label}>Profile Photo</Text>
         <ImageUploader
-          currentImage={localData.profilePhoto}
-          onImageSelected={uri => handleImageUpload('profilePhoto', uri)}
+          onImageSelect={uri => handleImageUpload('profilePhoto', uri)}
           placeholder="Add your profile photo"
-          aspectRatio={1}
           style={styles.imageUploader}
         />
       </View>
@@ -111,7 +109,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           maxLength={50}
         />
         {getFieldError('name') && (
-          <ValidationMessage message={getFieldError('name')!} type="error" />
+          <ValidationMessage error={getFieldError('name')!} />
         )}
       </View>
 
@@ -127,7 +125,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           maxLength={100}
         />
         {getFieldError('title') && (
-          <ValidationMessage message={getFieldError('title')!} type="error" />
+          <ValidationMessage error={getFieldError('title')!} type="error" />
         )}
       </View>
 
@@ -143,7 +141,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           maxLength={100}
         />
         {getFieldError('company') && (
-          <ValidationMessage message={getFieldError('company')!} type="error" />
+          <ValidationMessage error={getFieldError('company')!} type="error" />
         )}
       </View>
 
@@ -151,10 +149,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
       <View style={styles.field}>
         <Text style={styles.label}>Company Logo</Text>
         <ImageUploader
-          currentImage={localData.companyLogo}
-          onImageSelected={uri => handleImageUpload('companyLogo', uri)}
+          onImageSelect={uri => handleImageUpload('companyLogo', uri)}
           placeholder="Add your company logo"
-          aspectRatio={2}
           style={styles.imageUploader}
         />
       </View>
@@ -170,10 +166,10 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
-          autoCompleteType="email"
+          autoComplete="email"
         />
         {getFieldError('email') && (
-          <ValidationMessage message={getFieldError('email')!} type="error" />
+          <ValidationMessage error={getFieldError('email')!} type="error" />
         )}
       </View>
 
@@ -186,10 +182,10 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
           onChangeText={text => updateField('phone', text)}
           placeholder="+1 (555) 123-4567"
           keyboardType="phone-pad"
-          autoCompleteType="tel"
+          autoComplete="tel"
         />
         {getFieldError('phone') && (
-          <ValidationMessage message={getFieldError('phone')!} type="error" />
+          <ValidationMessage error={getFieldError('phone')!} type="error" />
         )}
       </View>
 

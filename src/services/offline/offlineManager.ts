@@ -5,7 +5,7 @@
  * sync queue management, and offline-first architecture
  */
 
-import NetInfo, { NetInfoState } from '@react-native-netinfo/netinfo';
+import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface OfflineAction {

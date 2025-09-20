@@ -10,7 +10,7 @@ import {
   BusinessCardValidationErrors,
   BasicInfo,
   StartupInfo,
-  SocialLinks,
+  BusinessCardSocialLinks,
   CustomField,
   FundingStage,
   TeamSize,
@@ -166,6 +166,7 @@ export const validateStartupInfo = (
     'idea',
     'pre-seed',
     'seed',
+    'growth',
     'series-a',
     'series-b',
     'series-c',
@@ -202,13 +203,13 @@ export const validateStartupInfo = (
   }
 
   // Validate founded year
-  if (startupInfo.foundedYear) {
+  if ((startupInfo as any).foundedYear) {
     const currentYear = new Date().getFullYear();
     if (
-      startupInfo.foundedYear < 1900 ||
-      startupInfo.foundedYear > currentYear + 1
+      (startupInfo as any).foundedYear < 1900 ||
+      (startupInfo as any).foundedYear > currentYear + 1
     ) {
-      errors.fundingStage = 'Please enter a valid founded year';
+      (errors as any).foundedYear = 'Please enter a valid founded year';
     }
   }
 
@@ -219,25 +220,23 @@ export const validateStartupInfo = (
  * Validates social links
  */
 export const validateSocialLinks = (
-  socialLinks: Partial<SocialLinks>,
+  socialLinks: Partial<any>,
 ): Partial<BusinessCardValidationErrors['socialLinks']> => {
   const errors: Partial<BusinessCardValidationErrors['socialLinks']> = {};
 
   Object.entries(socialLinks).forEach(([platform, url]) => {
-    if (url && url.trim()) {
+    if (url && (url as string).trim()) {
       // Check if platform has specific pattern
       if (platform in SOCIAL_PATTERNS) {
         const pattern =
           SOCIAL_PATTERNS[platform as keyof typeof SOCIAL_PATTERNS];
-        if (!pattern.test(url)) {
-          errors[
-            platform as keyof SocialLinks
-          ] = `Please enter a valid ${platform} URL`;
+        if (!pattern.test(url as string)) {
+          (errors as any)[platform] = `Please enter a valid ${platform} URL`;
         }
       } else {
         // General URL validation
-        if (!URL_REGEX.test(url)) {
-          errors[platform as keyof SocialLinks] = `Please enter a valid URL`;
+        if (!URL_REGEX.test(url as string)) {
+          (errors as any)[platform] = `Please enter a valid URL`;
         }
       }
     }
@@ -338,22 +337,28 @@ export const validateBusinessCardForm = (
     errors.basicInfo = basicInfoErrors;
   }
 
-  // Validate startup info
-  const startupInfoErrors = validateStartupInfo(formData.startupInfo);
-  if (startupInfoErrors && Object.keys(startupInfoErrors).length > 0) {
-    errors.startupInfo = startupInfoErrors;
+  // Validate startup info only if it exists
+  if (formData.startupInfo) {
+    const startupInfoErrors = validateStartupInfo(formData.startupInfo);
+    if (startupInfoErrors && Object.keys(startupInfoErrors).length > 0) {
+      errors.startupInfo = startupInfoErrors;
+    }
   }
 
-  // Validate social links
-  const socialLinksErrors = validateSocialLinks(formData.socialLinks);
-  if (socialLinksErrors && Object.keys(socialLinksErrors).length > 0) {
-    errors.socialLinks = socialLinksErrors;
+  // Validate social links only if they exist
+  if (formData.socialLinks) {
+    const socialLinksErrors = validateSocialLinks(formData.socialLinks);
+    if (socialLinksErrors && Object.keys(socialLinksErrors).length > 0) {
+      errors.socialLinks = socialLinksErrors;
+    }
   }
 
-  // Validate custom fields
-  const customFieldsErrors = validateCustomFields(formData.customFields);
-  if (customFieldsErrors && Object.keys(customFieldsErrors).length > 0) {
-    errors.customFields = customFieldsErrors;
+  // Validate custom fields only if they exist
+  if (formData.customFields && formData.customFields.length > 0) {
+    const customFieldsErrors = validateCustomFields(formData.customFields);
+    if (customFieldsErrors && Object.keys(customFieldsErrors).length > 0) {
+      errors.customFields = customFieldsErrors;
+    }
   }
 
   // Validate theme and template selection
@@ -459,20 +464,20 @@ export const getBusinessCardSuggestions = (
   }
 
   // Social links suggestions
-  const socialLinksCount = Object.values(formData.socialLinks).filter(link =>
-    link?.trim(),
+  const socialLinksCount = Object.values(formData.socialLinks || {}).filter(
+    link => link?.trim(),
   ).length;
   if (socialLinksCount < 2) {
     suggestions.push('Add social media links to expand your network');
   }
 
-  if (!formData.socialLinks.linkedin) {
+  if (!formData.socialLinks?.linkedin) {
     suggestions.push(
       "Add your LinkedIn profile - it's essential for professional networking",
     );
   }
 
-  if (!formData.socialLinks.website) {
+  if (!formData.socialLinks?.website) {
     suggestions.push('Add your website or portfolio to showcase your work');
   }
 

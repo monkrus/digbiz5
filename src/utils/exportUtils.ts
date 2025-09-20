@@ -6,7 +6,7 @@
  */
 
 import { Platform, Alert, PermissionsAndroid } from 'react-native';
-import RNHTMLtoPDF from 'react-native-html-to-pdf';
+import * as RNHTMLtoPDF from 'react-native-html-to-pdf';
 // import ViewShot from 'react-native-view-shot';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';

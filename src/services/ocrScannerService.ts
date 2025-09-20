@@ -11,7 +11,7 @@ import {
   ImagePickerResponse,
   MediaType,
 } from 'react-native-image-picker';
-import { TextRecognition } from '@react-native-ml-kit/text-recognition';
+import TextRecognition from '@react-native-ml-kit/text-recognition';
 import {
   Contact,
   ContactField,
@@ -158,9 +158,9 @@ class OCRScannerService {
    * Get image from camera or gallery
    */
   private async getImage(options: ScanOptions): Promise<ImagePickerResponse> {
-    const pickerOptions = {
+    const pickerOptions: any = {
       mediaType: 'photo' as MediaType,
-      quality: options.quality || 0.8,
+      quality: (options.quality || 0.8) as any,
       maxWidth: options.maxWidth || 1920,
       maxHeight: options.maxHeight || 1080,
       includeBase64: options.includeBase64 || false,

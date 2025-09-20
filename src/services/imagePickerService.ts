@@ -129,8 +129,8 @@ export class ImagePickerService {
         return this.processCroppedImage(image);
       } else {
         return new Promise(resolve => {
-          const imagePickerOptions: ImagePickerOptions = {
-            mediaType: options.mediaType,
+          const imagePickerOptions: any = {
+            mediaType: options.mediaType || 'photo',
             quality: options.quality,
             maxWidth: options.maxWidth,
             maxHeight: options.maxHeight,
@@ -165,8 +165,8 @@ export class ImagePickerService {
         return this.processCroppedImage(image);
       } else {
         return new Promise(resolve => {
-          const imagePickerOptions: ImagePickerOptions = {
-            mediaType: options.mediaType,
+          const imagePickerOptions: any = {
+            mediaType: options.mediaType || 'photo',
             quality: options.quality,
             maxWidth: options.maxWidth,
             maxHeight: options.maxHeight,
